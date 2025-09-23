@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from "recharts"
@@ -79,8 +79,38 @@ function NumberInput({
   )
 }
 
-/* ===== Parâmetros da regra ===== */
+/** Input especial para "Até que idade pretende viver?" — não força valor enquanto digita */
+function LifeAgeInput({
+  label, value, onCommit, min, max, id,
+}: { label: string; value: number; onCommit:(v:number)=>void; min:number; max:number; id:string }) {
+  const [text, setText] = useState(String(value))
+  useEffect(() => { setText(String(value)) }, [value])
+
+  const commit = () => {
+    const raw = Number(text.replace(/[^\d]/g, "")) || min
+    onCommit(clamp(raw, min, max))
+  }
+
+  return (
+    <label className="grid gap-1">
+      <span className="text-sm font-medium">{label}</span>
+      <input
+        id={id}
+        inputMode="numeric"
+        className="w-full rounded-md border bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]"
+        value={text}
+        onChange={(e)=> setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e)=> { if (e.key === "Enter") { (e.target as HTMLInputElement).blur() } }}
+      />
+    </label>
+  )
+}
+
+/* ===== Parâmetros ===== */
 const TAXA_RETIRADA = 0.04 // 4% a.a. (FIRE) — saque real anual fixo no pós-aposentadoria
+
+type MetodoSaque = "fire4" | "gasto"
 
 /* ===== App ===== */
 export default function App() {
@@ -91,12 +121,13 @@ export default function App() {
   const [percInvestRenda, setPercInvestRenda] = useState(5) // %
   const [idadeAtual, setIdadeAtual] = useState(37)
   const [idadeApos, setIdadeApos] = useState(65)
-  const [idadeVida, setIdadeVida] = useState(95) // <<< NOVO: horizonte final
+  const [idadeVida, setIdadeVida] = useState(95) // horizonte final
   const [gastoMensal, setGastoMensal] = useState(5000)
   const [retornoNominalAA, setRetornoNominalAA] = useState(10) // %
   const [inflacaoAA, setInflacaoAA] = useState(5) // %
+  const [metodoSaque, setMetodoSaque] = useState<MetodoSaque>("fire4") // <<< TOGGLE
 
-  const anosAteApos = useMemo(()=> clamp(idadeApos - idadeAtual, 0, 120), [idadeApos, idadeAtual])
+  const anosAteApos = useMemo(()=> Math.max(0, idadeApos - idadeAtual), [idadeApos, idadeAtual])
   const aporteMensal = useMemo(()=> Math.round(rendaMensal * (percInvestRenda/100)), [rendaMensal, percInvestRenda])
 
   // rentabilidade REAL = retorno esperado – inflação
@@ -105,7 +136,7 @@ export default function App() {
 
   // Projeção até a aposentadoria (FV em R$ de hoje)
   const saldoNaAposentadoria = useMemo(()=>{
-    const n = Math.max(0, anosAteApos) * 12
+    const n = anosAteApos * 12
     let saldo = investido
     for (let m=0; m<n; m++) {
       saldo = saldo * (1 + iMensal) + aporteMensal
@@ -113,42 +144,46 @@ export default function App() {
     return Math.max(0, saldo)
   }, [investido, anosAteApos, iMensal, aporteMensal])
 
-  // Regra FIRE em termos reais: saque anual fixo = 4% do saldo ao aposentar
-  const saqueAnualFixo = useMemo(()=> saldoNaAposentadoria * TAXA_RETIRADA, [saldoNaAposentadoria])
-  const saqueMensalFixo = useMemo(()=> saqueAnualFixo / 12, [saqueAnualFixo])
+  // Saque pós-aposentadoria: método FIRE 4% OU gasto mensal desejado
+  const saqueMensalFixo = useMemo(()=>{
+    if (metodoSaque === "gasto") return Math.max(0, gastoMensal)
+    const saqueAnual = saldoNaAposentadoria * TAXA_RETIRADA
+    return Math.max(0, saqueAnual / 12)
+  }, [metodoSaque, gastoMensal, saldoNaAposentadoria])
 
-  // Se o usuário não informar um alvo, usamos o FIRE com base no gasto desejado
+  // Patrimônio necessário (para comparação): alvo informado OU FIRE baseado no gasto
   const necessario = useMemo(()=>{
     const base = alvoPatrimonio > 0 ? alvoPatrimonio : (gastoMensal * 12) / TAXA_RETIRADA
     return Math.max(0, base)
   }, [alvoPatrimonio, gastoMensal])
 
-  const podeGastarMes = useMemo(()=> (saldoNaAposentadoria * TAXA_RETIRADA) / 12, [saldoNaAposentadoria])
+  const podeGastarMes = useMemo(()=>{
+    // exibição informativa: se for FIRE4, mostra 4%/12; se for “gasto”, mostra o próprio gasto
+    return metodoSaque === "gasto" ? gastoMensal : (saldoNaAposentadoria * TAXA_RETIRADA) / 12
+  }, [metodoSaque, gastoMensal, saldoNaAposentadoria])
+
   const diff = saldoNaAposentadoria - necessario
   const atingiu = diff >= 0
 
-  // >>> Série por idade, com 2 fases: acumulação e pós-aposentadoria até idadeVida
+  // >>> Série por idade, com 2 fases até idadeVida (sem “puxar” valor do input)
   const chartData = useMemo(()=>{
-    const pontos: { idade: number; saldo: number }[] = []
     const idadeFim = clamp(idadeVida, idadeAtual, 120)
+    const pontos: { idade: number; saldo: number }[] = []
 
     // Fase 1 — acumulação até min(idadeApos, idadeFim)
     let s = investido
-    let idade = idadeAtual
-    pontos.push({ idade, saldo: Math.max(0, s) })
+    pontos.push({ idade: idadeAtual, saldo: Math.max(0, s) })
 
-    const ultimaIdadeAcum = Math.min(idadeApos, idadeFim)
-    for (let ano = idadeAtual + 1; ano <= ultimaIdadeAcum; ano++) {
+    const ultimoAcum = Math.min(idadeApos, idadeFim)
+    for (let ano = idadeAtual + 1; ano <= ultimoAcum; ano++) {
       for (let m = 0; m < 12; m++) {
         s = s * (1 + iMensal) + aporteMensal
       }
-      idade = ano
-      pontos.push({ idade, saldo: Math.max(0, s) })
+      pontos.push({ idade: ano, saldo: Math.max(0, s) })
     }
 
-    // Fase 2 — pós-aposentadoria até idadeVida (se idadeVida > idadeApos)
+    // Fase 2 — pós-aposentadoria até idadeVida (se houver)
     if (idadeFim > idadeApos) {
-      // saque real fixo baseado no saldo ao aposentar
       let sPos = s
       for (let ano = idadeApos + 1; ano <= idadeFim; ano++) {
         for (let m = 0; m < 12; m++) {
@@ -175,6 +210,7 @@ export default function App() {
     setGastoMensal(5000)
     setRetornoNominalAA(10)
     setInflacaoAA(5)
+    setMetodoSaque("fire4")
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
   const imprimir = () => window.print()
@@ -207,7 +243,7 @@ export default function App() {
           Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada =
           {" "}
           <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
-          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> (saque anual real fixo a partir da aposentadoria).
+          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> ou “gasto mensal desejado”, conforme alternador abaixo.
         </p>
       </header>
 
@@ -219,10 +255,31 @@ export default function App() {
         <PercentInput id="perc" label="Quantos % da renda você investe?" value={percInvestRenda} onChange={(v)=>setPercInvestRenda(clamp(v,0,100))}/>
         <NumberInput id="idade" label="Qual sua idade atual" value={idadeAtual} onChange={(v)=>setIdadeAtual(clamp(v,0,120))}/>
         <NumberInput id="apos" label="Com quantos anos deseja se aposentar?" value={idadeApos} onChange={(v)=>setIdadeApos(clamp(v,0,120))}/>
-        <NumberInput id="vida" label="Até que idade pretende viver?" value={idadeVida} onChange={(v)=>setIdadeVida(clamp(v,idadeAtual,120))}/>
+        <LifeAgeInput id="vida" label="Até que idade pretende viver?" value={idadeVida} onCommit={(v)=>setIdadeVida(v)} min={idadeAtual} max={120}/>
         <PercentInput id="ret" label="Retorno esperado (a.a.)" value={retornoNominalAA} onChange={(v)=>setRetornoNominalAA(clamp(v,-50,100))}/>
         <PercentInput id="inf" label="Inflação esperada (a.a.)" value={inflacaoAA} onChange={(v)=>setInflacaoAA(clamp(v,-10,50))}/>
         <MoneyInput id="gasto" label="Quanto pretende gastar por mês aposentado?" value={gastoMensal} onChange={setGastoMensal}/>
+      </section>
+
+      {/* Toggle de método de saque */}
+      <section className="mt-4">
+        <div className="inline-flex rounded-md border bg-white p-1">
+          <button
+            className={`px-3 py-1 text-sm font-medium rounded ${metodoSaque==='fire4' ? 'bg-[hsl(var(--primary))] text-white' : 'text-slate-700'}`}
+            onClick={()=>setMetodoSaque('fire4')}
+          >
+            Saque 4% a.a. (FIRE)
+          </button>
+          <button
+            className={`ml-1 px-3 py-1 text-sm font-medium rounded ${metodoSaque==='gasto' ? 'bg-[hsl(var(--primary))] text-white' : 'text-slate-700'}`}
+            onClick={()=>setMetodoSaque('gasto')}
+          >
+            Gasto mensal desejado
+          </button>
+        </div>
+        <p className="mt-1 text-xs text-slate-600">
+          O método selecionado vale apenas para a fase pós-aposentadoria. A acumulação antes disso não muda.
+        </p>
       </section>
 
       {/* Resultado (cards) */}
@@ -247,9 +304,16 @@ export default function App() {
           </div>
 
           <div className="rounded-xl border p-4">
-            <div className="text-sm text-slate-600">Poderá gastar por mês (regra 4%)</div>
+            <div className="text-sm text-slate-600">
+              Poderá gastar por mês ({metodoSaque === "gasto" ? "gasto desejado" : "regra 4%"}
+              )
+            </div>
             <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(podeGastarMes))}</div>
-            <div className="text-xs text-slate-500">Saque real fixo após aposentar</div>
+            <div className="text-xs text-slate-500">
+              {metodoSaque === "gasto"
+                ? "Saque real fixo igual ao gasto desejado"
+                : "Saque real fixo de 4% a.a. do patrimônio (≈ 0,333% ao mês)"}
+            </div>
           </div>
         </div>
 
@@ -270,8 +334,8 @@ export default function App() {
             Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong> • horizonte até <strong>{idadeVida}</strong> anos
           </span>
           <div className="ml-auto flex gap-2">
-            <button className="tweak-btn" onClick={()=>bumpReal(-1)}>−1% retorno</button>
-            <button className="tweak-btn" onClick={()=>bumpReal(+1)}>+1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium text-white shadow" style={{backgroundColor:"hsl(var(--primary))"}} onClick={()=>setRetornoNominalAA(Math.max(-50, retornoNominalAA - 1))}>−1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium text-white shadow" style={{backgroundColor:"hsl(var(--primary))"}} onClick={()=>setRetornoNominalAA(Math.min(100, retornoNominalAA + 1))}>+1% retorno</button>
           </div>
         </div>
 
@@ -291,8 +355,9 @@ export default function App() {
         </div>
 
         <p className="mt-2 text-xs text-slate-500">
-          No pós-aposentadoria, o saque anual é fixo em termos reais (4% do saldo no momento da aposentadoria).
-          Se a rentabilidade real ficar abaixo desse patamar, o patrimônio tende a diminuir ao longo do tempo.
+          No pós-aposentadoria, o saque é real e fixo: <strong>
+            {metodoSaque === "gasto" ? "igual ao gasto desejado" : "4% ao ano do patrimônio ao aposentar"}
+          </strong>. Se a rentabilidade real for menor que o ritmo de saque, o patrimônio decresce ao longo do tempo.
         </p>
       </section>
 
