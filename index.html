@@ -1,13 +1,77 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <!-- SEO básico -->
+    <title>Minhas Calculadoras — Simulador de Aposentadoria e Liberdade Financeira</title>
+    <meta
+      name="description"
+      content="Simule sua aposentadoria e descubra quando alcançar a liberdade financeira. Resultados simples e objetivos, em R$ de hoje."
+    />
+    <meta
+      name="keywords"
+      content="calculadora, aposentadoria, liberdade financeira, independência financeira, FIRE, simulador de investimentos, previdência, planejamento financeiro"
+    />
+    <meta name="author" content="Minhas Calculadoras" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://www.minhascalculadoras.com/" />
+
+    <!-- Cor do tema do navegador -->
+    <meta name="theme-color" content="#165788" />
+
+    <!-- Open Graph (Facebook, LinkedIn, etc.) -->
+    <meta property="og:title" content="Minhas Calculadoras — Simulador de Aposentadoria" />
+    <meta
+      property="og:description"
+      content="Planeje sua aposentadoria em minutos. Veja quanto poderá gastar por mês e quando atinge sua meta."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.minhascalculadoras.com/" />
+    <meta property="og:image" content="https://www.minhascalculadoras.com/preview.png" />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Minhas Calculadoras — Simulador de Aposentadoria" />
+    <meta
+      name="twitter:description"
+      content="Simule sua liberdade financeira de forma simples e clara."
+    />
+    <meta name="twitter:image" content="https://www.minhascalculadoras.com/preview.png" />
+
+    <!-- Ícones (coloque os arquivos em /public) -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B7TS7FYEEM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B7TS7FYEEM');
+    </script>
+
+    <!-- (Opcional) Dados estruturados mínimos -->
+    <script type="application/ld+json">
+      {
+        "@context":"https://schema.org",
+        "@type":"WebSite",
+        "name":"Minhas Calculadoras",
+        "url":"https://www.minhascalculadoras.com/",
+        "description":"Simulador de aposentadoria e liberdade financeira em R$ de hoje."
+      }
+    </script>
   </head>
   <body>
+    <noscript>Ative o JavaScript para usar esta aplicação.</noscript>
     <div id="root"></div>
+    <!-- Vite/React entry -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
