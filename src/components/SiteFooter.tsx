@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom"; // se você usa react-router; se não, troque por <a>
 
 export default function SiteFooter() {
   return (
@@ -12,7 +11,6 @@ export default function SiteFooter() {
         style={{ maxWidth: 1100, color: "#667", fontSize: 14, lineHeight: 1.6 }}
       >
         © Minhas Calculadoras — v1.0 beta ·{" "}
-        {/* se NÃO usar react-router, troque por <a href="/politica-privacidade.html"> */}
         <a href="/politica-privacidade.html" style={{ color: "#165788", textDecoration: "none" }}>
           Política de Privacidade
         </a>{" "}
