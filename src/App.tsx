@@ -7,7 +7,7 @@ import {
 const fmtBRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
 
-/** Formato compacto para eixo Y: "R$ 250 mil" / "R$ 1,2 mi" */
+/** Eixo Y compacto: "R$ 250 mil" / "R$ 1,2 mi" */
 function fmtCompactBRL(n: number): string {
   const abs = Math.abs(n)
   if (abs >= 1_000_000) {
@@ -80,7 +80,7 @@ function NumberInput({
 }
 
 /* ===== Parâmetros da regra ===== */
-const TAXA_RETIRADA = 0.04 // 4% a.a. (FIRE)
+const TAXA_RETIRADA = 0.04 // 4% a.a. (FIRE) — saque real anual fixo no pós-aposentadoria
 
 /* ===== App ===== */
 export default function App() {
@@ -91,11 +91,12 @@ export default function App() {
   const [percInvestRenda, setPercInvestRenda] = useState(5) // %
   const [idadeAtual, setIdadeAtual] = useState(37)
   const [idadeApos, setIdadeApos] = useState(65)
+  const [idadeVida, setIdadeVida] = useState(95) // <<< NOVO: horizonte final
   const [gastoMensal, setGastoMensal] = useState(5000)
   const [retornoNominalAA, setRetornoNominalAA] = useState(10) // %
   const [inflacaoAA, setInflacaoAA] = useState(5) // %
 
-  const anos = useMemo(()=> clamp(idadeApos - idadeAtual, 0, 80), [idadeApos, idadeAtual])
+  const anosAteApos = useMemo(()=> clamp(idadeApos - idadeAtual, 0, 120), [idadeApos, idadeAtual])
   const aporteMensal = useMemo(()=> Math.round(rendaMensal * (percInvestRenda/100)), [rendaMensal, percInvestRenda])
 
   // rentabilidade REAL = retorno esperado – inflação
@@ -104,15 +105,15 @@ export default function App() {
 
   // Projeção até a aposentadoria (FV em R$ de hoje)
   const saldoNaAposentadoria = useMemo(()=>{
-    const n = anos * 12
+    const n = Math.max(0, anosAteApos) * 12
     let saldo = investido
     for (let m=0; m<n; m++) {
       saldo = saldo * (1 + iMensal) + aporteMensal
     }
     return Math.max(0, saldo)
-  }, [investido, anos, iMensal, aporteMensal])
+  }, [investido, anosAteApos, iMensal, aporteMensal])
 
-  // Regra FIRE “clássica” em termos reais: saque anual fixo = 4% do saldo ao aposentar (em R$ de hoje)
+  // Regra FIRE em termos reais: saque anual fixo = 4% do saldo ao aposentar
   const saqueAnualFixo = useMemo(()=> saldoNaAposentadoria * TAXA_RETIRADA, [saldoNaAposentadoria])
   const saqueMensalFixo = useMemo(()=> saqueAnualFixo / 12, [saqueAnualFixo])
 
@@ -126,41 +127,41 @@ export default function App() {
   const diff = saldoNaAposentadoria - necessario
   const atingiu = diff >= 0
 
-  // >>> Série por idade, com 2 fases: acumulação (até idadeApos) e pós-aposentadoria (saques fixos em termos reais)
+  // >>> Série por idade, com 2 fases: acumulação e pós-aposentadoria até idadeVida
   const chartData = useMemo(()=>{
     const pontos: { idade: number; saldo: number }[] = []
+    const idadeFim = clamp(idadeVida, idadeAtual, 120)
 
-    // Fase 1 — acumulação mês a mês até a idade de aposentadoria
+    // Fase 1 — acumulação até min(idadeApos, idadeFim)
     let s = investido
     let idade = idadeAtual
     pontos.push({ idade, saldo: Math.max(0, s) })
 
-    for (let a = 1; a <= anos; a++) {
+    const ultimaIdadeAcum = Math.min(idadeApos, idadeFim)
+    for (let ano = idadeAtual + 1; ano <= ultimaIdadeAcum; ano++) {
       for (let m = 0; m < 12; m++) {
         s = s * (1 + iMensal) + aporteMensal
       }
-      idade = idadeAtual + a
+      idade = ano
       pontos.push({ idade, saldo: Math.max(0, s) })
     }
 
-    // Fase 2 — pós-aposentadoria: simular +30 anos (ou até zerar)
-    const horizontePos = 30
-    let sPos = s
-    for (let a = 1; a <= horizontePos; a++) {
-      for (let m = 0; m < 12; m++) {
-        sPos = sPos * (1 + iMensal) - saqueMensalFixo
-        if (sPos <= 0) {
-          sPos = 0
-          break
+    // Fase 2 — pós-aposentadoria até idadeVida (se idadeVida > idadeApos)
+    if (idadeFim > idadeApos) {
+      // saque real fixo baseado no saldo ao aposentar
+      let sPos = s
+      for (let ano = idadeApos + 1; ano <= idadeFim; ano++) {
+        for (let m = 0; m < 12; m++) {
+          sPos = sPos * (1 + iMensal) - saqueMensalFixo
+          if (sPos <= 0) { sPos = 0; break }
         }
+        pontos.push({ idade: ano, saldo: Math.max(0, sPos) })
+        if (sPos <= 0) break
       }
-      const idadePos = idadeApos + a
-      pontos.push({ idade: idadePos, saldo: Math.max(0, sPos) })
-      if (sPos <= 0) break
     }
 
     return pontos
-  }, [investido, idadeAtual, idadeApos, anos, iMensal, aporteMensal, saqueMensalFixo])
+  }, [investido, idadeAtual, idadeApos, idadeVida, iMensal, aporteMensal, saqueMensalFixo])
 
   // Ações
   const limpar = () => {
@@ -170,6 +171,7 @@ export default function App() {
     setPercInvestRenda(5)
     setIdadeAtual(37)
     setIdadeApos(65)
+    setIdadeVida(95)
     setGastoMensal(5000)
     setRetornoNominalAA(10)
     setInflacaoAA(5)
@@ -205,7 +207,7 @@ export default function App() {
           Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada =
           {" "}
           <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
-          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> (saque anual fixo a partir da aposentadoria).
+          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> (saque anual real fixo a partir da aposentadoria).
         </p>
       </header>
 
@@ -215,8 +217,9 @@ export default function App() {
         <MoneyInput id="inv" label="Quanto você já tem investido?" value={investido} onChange={setInvestido}/>
         <MoneyInput id="alvo" label="Com quanto de patrimônio quer se aposentar? (opcional)" value={alvoPatrimonio} onChange={setAlvoPatrimonio}/>
         <PercentInput id="perc" label="Quantos % da renda você investe?" value={percInvestRenda} onChange={(v)=>setPercInvestRenda(clamp(v,0,100))}/>
-        <NumberInput id="idade" label="Qual sua idade atual" value={idadeAtual} onChange={(v)=>setIdadeAtual(clamp(v,0,100))}/>
+        <NumberInput id="idade" label="Qual sua idade atual" value={idadeAtual} onChange={(v)=>setIdadeAtual(clamp(v,0,120))}/>
         <NumberInput id="apos" label="Com quantos anos deseja se aposentar?" value={idadeApos} onChange={(v)=>setIdadeApos(clamp(v,0,120))}/>
+        <NumberInput id="vida" label="Até que idade pretende viver?" value={idadeVida} onChange={(v)=>setIdadeVida(clamp(v,idadeAtual,120))}/>
         <PercentInput id="ret" label="Retorno esperado (a.a.)" value={retornoNominalAA} onChange={(v)=>setRetornoNominalAA(clamp(v,-50,100))}/>
         <PercentInput id="inf" label="Inflação esperada (a.a.)" value={inflacaoAA} onChange={(v)=>setInflacaoAA(clamp(v,-10,50))}/>
         <MoneyInput id="gasto" label="Quanto pretende gastar por mês aposentado?" value={gastoMensal} onChange={setGastoMensal}/>
@@ -240,7 +243,7 @@ export default function App() {
           <div className="rounded-xl border p-4">
             <div className="text-sm text-slate-600">Patrimônio ao aposentar</div>
             <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
-            <div className="text-xs text-slate-500">{anos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
+            <div className="text-xs text-slate-500">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
           </div>
 
           <div className="rounded-xl border p-4">
@@ -260,11 +263,11 @@ export default function App() {
         </div>
       </section>
 
-      {/* Sensibilidade + Gráfico (com declínio pós-aposentadoria) */}
+      {/* Sensibilidade + Gráfico (com declínio pós-aposentadoria até idadeVida) */}
       <section className="mt-6">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-sm text-slate-700">
-            Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong>
+            Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong> • horizonte até <strong>{idadeVida}</strong> anos
           </span>
           <div className="ml-auto flex gap-2">
             <button className="tweak-btn" onClick={()=>bumpReal(-1)}>−1% retorno</button>
@@ -288,8 +291,8 @@ export default function App() {
         </div>
 
         <p className="mt-2 text-xs text-slate-500">
-          No pós-aposentadoria, o saque anual é fixo em termos reais (4% do saldo inicial ao aposentar).
-          Se a rentabilidade real ficar <em>abaixo</em> desse patamar, o patrimônio tende a diminuir ao longo do tempo.
+          No pós-aposentadoria, o saque anual é fixo em termos reais (4% do saldo no momento da aposentadoria).
+          Se a rentabilidade real ficar abaixo desse patamar, o patrimônio tende a diminuir ao longo do tempo.
         </p>
       </section>
 
