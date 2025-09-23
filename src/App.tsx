@@ -1,397 +1,244 @@
 import { useMemo, useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Printer, Info, Minus, Plus } from "lucide-react"
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts"
+import "./index.css"
 
-import { InputAffix } from "@/components/InputAffix"
-import { parseBRInt, formatBRInt } from "@/lib/number"
+/** Utilitários simples de máscara/parse */
+const brToNumber = (s: string) =>
+  Number(String(s).replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "")) || 0
 
-// ===== Config =====
-const TAXA_RETIRADA_REAL = 0.04 // “regra dos 4%” (FIRE)
+const numberToBR = (n: number) =>
+  n.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
 
-// ===== Helpers =====
-const fmt = (n: number) =>
+const moneyToBR = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
 
-const toPctStr = (x: number) => String(Math.round(x * 100))
-const fromPctStr = (s: string) => (parseInt(s.replace(/[^\d]/g, "") || "0", 10) / 100)
-
-function formatCompactBR(n: number) {
-  const a = Math.abs(n)
-  if (a >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)} bi`
-  if (a >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} mi`
-  if (a >= 1_000) return `${Math.round(n / 1000)} mil`
-  return `${Math.round(n)}`
-}
-
-const necessarioFIRE = (gastoMensal: number) => (gastoMensal * 12) / TAXA_RETIRADA_REAL
-
-// ===== Tipos =====
-type Estado = {
-  rendaMensal: number
-  pctInvest: number // fração
-  aporteMensal: number // calculado mas pode ser editado
-  patrimonioAtual: number
-  alvoPatrimonio: number // “com quanto quer se aposentar” (0 = usar FIRE)
-  idadeAtual: number
-  idadeAposentadoria: number
-  expectativaVida: number
-
-  retornoEsperadoAA: number // FRAÇÃO a.a. (nominal, fácil pro usuário)
-  inflacaoAA: number        // FRAÇÃO a.a.
-  // retornoRealAA = retornoEsperadoAA - inflacaoAA (derivado)
-
-  gastoMensalApos: number // R$ de hoje
-}
-
-function Field({ id, label, children }: { id?: string; label: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <div className="grid gap-2">
-      <Label htmlFor={id} className="whitespace-nowrap text-sm font-medium leading-none">
-        {label}
-      </Label>
-      {children}
-    </div>
-  )
-}
-
-// ===== Núcleo do cálculo =====
-function simular({
-  rendaMensal,
-  pctInvest,
-  aporteMensal,
-  patrimonioAtual,
-  idadeAtual,
-  idadeAposentadoria,
-  expectativaVida,
-  retornoEsperadoAA,
-  inflacaoAA,
-  gastoMensalApos,
-}: Estado) {
-  const retornoRealAA = Math.max(-0.99, retornoEsperadoAA - inflacaoAA) // real
-
-  // aporte padrão = renda * %
-  const aporte = Math.max(0, aporteMensal || Math.round(rendaMensal * pctInvest))
-
-  const anosAteApos = Math.max(0, idadeAposentadoria - idadeAtual)
-  const anosAposentado = Math.max(0, expectativaVida - idadeAposentadoria)
-  const mesesAccum = anosAteApos * 12
-  const mesesRet = anosAposentado * 12
-
-  const r = Math.pow(1 + retornoRealAA, 1 / 12) - 1 // retorno real mensal
-
-  // FV com aportes no fim do mês
-  const fator = Math.pow(1 + r, mesesAccum)
-  const saldoApos =
-    patrimonioAtual * fator +
-    (mesesAccum > 0 ? (aporte * (fator - 1)) / (r || 1) : patrimonioAtual)
-
-  // série anual para gráfico
-  const serie: { ano: number; saldo: number }[] = []
-  {
-    let tmp = patrimonioAtual
-    let proximo = 12
-    let ano = 0
-    for (let m = 1; m <= mesesAccum; m++) {
-      tmp *= 1 + r
-      tmp += aporte
-      if (m === proximo) {
-        ano++
-        serie.push({ ano: idadeAtual + ano, saldo: Math.max(0, tmp) })
-        proximo += 12
-      }
-    }
-    // fase de aposentadoria (para exibir trajetória)
-    let tmp2 = saldoApos
-    proximo = 12
-    for (let m = 1; m <= mesesRet; m++) {
-      tmp2 -= gastoMensalApos
-      if (tmp2 < 0) tmp2 = 0
-      tmp2 *= 1 + r
-      if (m === proximo) {
-        ano++
-        serie.push({ ano: idadeAtual + ano, saldo: Math.max(0, tmp2) })
-        proximo += 12
-      }
-    }
-  }
-
-  return { retornoRealAA, aporte, saldoApos, serie }
-}
-
 export default function App() {
-  const [S, setS] = useState<Estado>({
-    rendaMensal: 15000,
-    pctInvest: 0.05,
-    aporteMensal: 0, // 0 = derive de renda * %
-    patrimonioAtual: 150000,
-    alvoPatrimonio: 1000000,
-    idadeAtual: 37,
-    idadeAposentadoria: 65,
-    expectativaVida: 90,
+  // Entradas (simplificadas conforme combinado)
+  const [rendaMensal, setRendaMensal] = useState("15.000")
+  const [patrimonioAtual, setPatrimonioAtual] = useState("150.000")
+  const [metaPatrimonio, setMetaPatrimonio] = useState("1.000.000") // opcional
+  const [percentualInvest, setPercentualInvest] = useState("5") // % da renda
+  const [idadeAtual, setIdadeAtual] = useState("37")
+  const [idadeApos, setIdadeApos] = useState("65")
+  const [retornoEsperadoAA, setRetornoEsperadoAA] = useState("10") // % a.a. nominal simplificado
+  const [inflacaoAA, setInflacaoAA] = useState("5") // % a.a.
+  const [gastoAlvoMes, setGastoAlvoMes] = useState("5.000")
 
-    retornoEsperadoAA: 0.10, // 10% a.a. esperado
-    inflacaoAA: 0.05,        // 5% a.a. inflação
+  // Derivados
+  const aporteMensal = useMemo(() => {
+    const renda = brToNumber(rendaMensal)
+    const perc = brToNumber(percentualInvest) / 100
+    return Math.max(0, renda * perc)
+  }, [rendaMensal, percentualInvest])
 
-    gastoMensalApos: 5000,
-  })
+  const anosAteApos = useMemo(() => {
+    const atual = brToNumber(idadeAtual)
+    const alvo = brToNumber(idadeApos)
+    return Math.max(0, alvo - atual)
+  }, [idadeAtual, idadeApos])
 
-  const R = useMemo(() => simular(S), [S])
+  // Rentabilidade real (retorno - inflação), conforme seu pedido
+  const rentRealAA = useMemo(() => {
+    const r = brToNumber(retornoEsperadoAA) / 100
+    const i = brToNumber(inflacaoAA) / 100
+    return Math.max(-0.99, r - i) // trava mínima
+  }, [retornoEsperadoAA, inflacaoAA])
 
-  const saldoMeta = S.alvoPatrimonio > 0 ? S.alvoPatrimonio : necessarioFIRE(S.gastoMensalApos)
-  const passouMeta = R.saldoApos >= saldoMeta
-  const poderGastar = (R.saldoApos * TAXA_RETIRADA_REAL) / 12
+  // Projeção do patrimônio final com juros compostos mês a mês (usando taxa real)
+  const resultado = useMemo(() => {
+    const P0 = brToNumber(patrimonioAtual)
+    const PMT = aporteMensal
+    const nMeses = anosAteApos * 12
+    const iMes = Math.pow(1 + rentRealAA, 1 / 12) - 1
 
-  // Handlers para ±1 pp na rentabilidade REAL (ajusta retorno esperado mantendo inflação)
-  const bumpReal = (deltaPP: number) => {
-    const novoReal = R.retornoRealAA + deltaPP / 100
-    const novoEsperado = Math.max(-0.99, novoReal + S.inflacaoAA)
-    setS({ ...S, retornoEsperadoAA: novoEsperado })
-  }
+    const Pfinal =
+      P0 * Math.pow(1 + iMes, nMeses) +
+      (PMT > 0 && iMes !== 0 ? PMT * (Math.pow(1 + iMes, nMeses) - 1) / iMes : PMT * nMeses)
+
+    return Math.max(0, Pfinal)
+  }, [patrimonioAtual, aporteMensal, anosAteApos, rentRealAA])
+
+  // Regra FIRE 4% a.a. → quanto pode gastar por mês (em R$ de hoje)
+  const taxaRetiradaAnual = 0.04
+  const podeGastarMes = useMemo(() => (resultado * taxaRetiradaAnual) / 12, [resultado])
+
+  // Mensagens do “Resultado”
+  const atingiuMeta = resultado >= brToNumber(metaPatrimonio || "0")
+  const alerta = atingiuMeta
+    ? "Parabéns! Você já atinge a meta de aposentadoria com os investimentos atuais."
+    : "Você ainda não atinge a meta — ajuste aportes, idade-alvo ou retorno esperado."
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <header className="border-b print:hidden">
-        <div className="mx-auto max-w-4xl px-4 py-4 flex items-center gap-3">
-          <h1 className="text-2xl font-bold">Simulador de Aposentadoria</h1>
-          <div className="ml-auto flex gap-2">
-            <Button variant="secondary" onClick={() => window.location.reload()}>Limpar</Button>
-            <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir</Button>
-          </div>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-[hsl(var(--primary))]">
+            Minhas Calculadoras
+          </h1>
+          <nav className="text-sm text-slate-600">
+            <a className="hover:underline mr-4" href="https://www.gov.br/inss/pt-br/direitos-e-deveres/aposentadorias" target="_blank" rel="noreferrer">
+              Previdência Social (oficial)
+            </a>
+            <span className="rounded bg-[hsl(var(--primary))] text-white px-2 py-1">v1.0 beta</span>
+          </nav>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6 space-y-6">
-        <Card>
-          <CardContent className="p-6 space-y-6">
-            {/* Entradas */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Quanto você ganha por mês?">
-                <InputAffix
-                  prefix="R$"
-                  value={formatBRInt(S.rendaMensal)}
-                  onChange={(e)=>setS({...S, rendaMensal: parseBRInt(e.target.value)})}
-                />
-              </Field>
+      {/* Conteúdo */}
+      <main className="flex-1">
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          <h2 className="text-2xl font-semibold mb-4">Cálculo de Liberdade Financeira na Aposentadoria</h2>
 
-              <Field label="Quanto você já tem investido?">
-                <InputAffix
-                  prefix="R$"
-                  value={formatBRInt(S.patrimonioAtual)}
-                  onChange={(e)=>setS({...S, patrimonioAtual: parseBRInt(e.target.value)})}
-                />
-              </Field>
+          {/* Formulário */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">Quanto você ganha por mês?</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
+                <input className="w-full rounded-md border px-8 py-2"
+                  value={rendaMensal}
+                  onChange={(e) => setRendaMensal(e.target.value)} />
+              </div>
 
-              <Field label="Com quanto de patrimônio você quer se aposentar? (opcional)">
-                <InputAffix
-                  prefix="R$"
-                  value={formatBRInt(S.alvoPatrimonio)}
-                  onChange={(e)=>setS({...S, alvoPatrimonio: parseBRInt(e.target.value)})}
-                />
-              </Field>
+              <label className="block text-sm font-medium">Quanto % da sua renda você investe?</label>
+              <div className="relative">
+                <input className="w-full rounded-md border pr-8 py-2"
+                  value={percentualInvest}
+                  onChange={(e) => setPercentualInvest(e.target.value)} />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+              </div>
 
-              <Field label="Quantos % da sua renda você investe?">
-                <InputAffix
-                  suffix="%"
-                  inputMode="numeric"
-                  value={toPctStr(S.pctInvest)}
-                  onChange={(e)=>setS({...S, pctInvest: fromPctStr(e.target.value)})}
-                />
-              </Field>
+              <label className="block text-sm font-medium">Qual sua idade atual</label>
+              <input className="w-full rounded-md border px-3 py-2"
+                value={idadeAtual}
+                onChange={(e) => setIdadeAtual(e.target.value)} />
 
-              <Field label="Qual sua idade atual">
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={S.idadeAtual}
-                  onChange={(e)=>setS({...S, idadeAtual: parseInt(e.target.value||"0",10)})}
-                />
-              </Field>
-
-              <Field label="Com quantos anos você deseja se aposentar?">
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={S.idadeAposentadoria}
-                  onChange={(e)=>setS({...S, idadeAposentadoria: parseInt(e.target.value||"0",10)})}
-                />
-              </Field>
-
-              <Field label="Retorno esperado (a.a.)">
-                <InputAffix
-                  suffix="%"
-                  inputMode="numeric"
-                  value={toPctStr(S.retornoEsperadoAA)}
-                  onChange={(e)=>setS({...S, retornoEsperadoAA: fromPctStr(e.target.value)})}
-                />
-              </Field>
-
-              <Field label="Inflação esperada (a.a.)">
-                <InputAffix
-                  suffix="%"
-                  inputMode="numeric"
-                  value={toPctStr(S.inflacaoAA)}
-                  onChange={(e)=>setS({...S, inflacaoAA: fromPctStr(e.target.value)})}
-                />
-              </Field>
-
-              <Field label="Quanto você pretende gastar por mês aposentado?">
-                <InputAffix
-                  prefix="R$"
-                  value={formatBRInt(S.gastoMensalApos)}
-                  onChange={(e)=>setS({...S, gastoMensalApos: parseBRInt(e.target.value)})}
-                />
-              </Field>
+              <label className="block text-sm font-medium">Com quantos anos você deseja se aposentar?</label>
+              <input className="w-full rounded-md border px-3 py-2"
+                value={idadeApos}
+                onChange={(e) => setIdadeApos(e.target.value)} />
             </div>
 
-            {/* Nota */}
-            <div className="text-xs text-muted-foreground flex items-start gap-2">
-              <Info className="h-4 w-4 mt-0.5" />
-              <span>
-                Os valores são em <b>R$ de hoje</b>. A <b>rentabilidade real</b> usada nos cálculos é
-                <b> retorno esperado − inflação</b>. Regra FIRE (retirada): <b>{(TAXA_RETIRADA_REAL * 100).toFixed(1)}% a.a.</b>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            <div className="space-y-3">
+              <label className="block text-sm font-medium">Quanto você já tem investido?</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
+                <input className="w-full rounded-md border px-8 py-2"
+                  value={patrimonioAtual}
+                  onChange={(e) => setPatrimonioAtual(e.target.value)} />
+              </div>
 
-        {/* Resultado */}
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h2 className="text-lg font-semibold">Resultado</h2>
+              <label className="block text-sm font-medium">Com quanto de patrimônio você quer se aposentar? (opcional)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
+                <input className="w-full rounded-md border px-8 py-2"
+                  value={metaPatrimonio}
+                  onChange={(e) => setMetaPatrimonio(e.target.value)} />
+              </div>
 
-            <div className={`p-3 rounded-md text-sm ${passouMeta ? "bg-green-50 text-green-800" : "bg-amber-50 text-amber-800"}`}>
-              {passouMeta
-                ? <>Parabéns! Você já atinge sua meta com os investimentos atuais.</>
-                : <>Ainda não atingiu a meta: aumente aportes, adie a aposentadoria ou ajuste a meta.</>}
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <Card className="border border-slate-200">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Aporte estimado por mês</div>
-                  <div className="text-xl font-semibold">{fmt(R.aporte)}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    ({fmt(S.rendaMensal)} × {(S.pctInvest*100).toFixed(0)}%)
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium">Retorno esperado (a.a.)</label>
+                  <div className="relative">
+                    <input className="w-full rounded-md border pr-8 py-2"
+                      value={retornoEsperadoAA}
+                      onChange={(e) => setRetornoEsperadoAA(e.target.value)} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className={`${passouMeta ? "border-green-300" : "border-amber-300"} border`}>
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Você se aposentará com</div>
-                  <div className="text-xl font-semibold">{fmt(R.saldoApos)}</div>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-blue-300">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">Poderá gastar por mês (regra 4%)</div>
-                  <div className="text-xl font-semibold">{fmt(poderGastar)}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className={`border ${passouMeta ? "border-green-400" : "border-amber-400"}`}>
-              <CardContent className="p-4">
-                <div className="text-sm text-muted-foreground">
-                  Meta considerada: {S.alvoPatrimonio > 0 ? "alvo informado" : "FIRE (gasto × 12 ÷ 4%)"}
                 </div>
-                <div className={`text-lg font-semibold ${passouMeta ? "text-green-700" : "text-amber-700"}`}>
-                  {passouMeta
-                    ? `Você passou da meta em ${fmt(R.saldoApos - saldoMeta)}.`
-                    : `Faltam ${fmt(saldoMeta - R.saldoApos)} para atingir a meta.`}
+                <div>
+                  <label className="block text-sm font-medium">Inflação esperada (a.a.)</label>
+                  <div className="relative">
+                    <input className="w-full rounded-md border pr-8 py-2"
+                      value={inflacaoAA}
+                      onChange={(e) => setInflacaoAA(e.target.value)} />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </CardContent>
-        </Card>
-
-        {/* Gráfico + controles de sensibilidade */}
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">
-                Evolução do patrimônio (R$ de hoje) — Rentabilidade real atual: {( (S.retornoEsperadoAA - S.inflacaoAA) *100).toFixed(1)}% a.a.
               </div>
-              <div className="flex items-center gap-2">
-                {/* Botões mais “vivos” */}
-                <Button
-                  size="sm"
-                  className="bg-[#165788] hover:bg-[#134a73] text-white shadow"
-                  onClick={() => bumpReal(-1)}
-                >
-                  <Minus className="h-4 w-4 mr-2"/> Diminuir 1%
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-[#2b89cc] hover:bg-[#1f6fa3] text-white shadow"
-                  onClick={() => bumpReal(1)}
-                >
-                  <Plus className="h-4 w-4 mr-2"/> Aumentar 1%
-                </Button>
+
+              <label className="block text-sm font-medium">Quanto você pretende gastar por mês aposentado?</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
+                <input className="w-full rounded-md border px-8 py-2"
+                  value={gastoAlvoMes}
+                  onChange={(e) => setGastoAlvoMes(e.target.value)} />
               </div>
             </div>
-            <div className="h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={R.serie}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis dataKey="ano"/>
-                  <YAxis tickFormatter={(v)=>formatCompactBR(Number(v))}/>
-                  <Tooltip formatter={(v:any)=>fmt(Number(v))}/>
-                  <Legend/>
-                  <Line type="monotone" dataKey="saldo" name="Patrimônio" dot={false} strokeWidth={2}/>
-                </LineChart>
-              </ResponsiveContainer>
+          </div>
+
+          <p className="mt-3 text-sm text-slate-600">
+            Os valores são em <strong>R$ de hoje</strong>. A rentabilidade <strong>real</strong> usada nos cálculos é
+            <span className="font-semibold"> retorno esperado – inflação</span>. Regra FIRE (retirada): <strong>4.0% a.a.</strong>
+          </p>
+
+          {/* Controles +/- 1% */}
+          <div className="mt-4 flex items-center gap-2">
+            <span className="text-sm text-slate-600">Ajustar rentabilidade real:</span>
+            <button
+              className="rounded-md bg-[hsl(var(--primary))] text-white px-3 py-1 hover:opacity-90"
+              onClick={() => setRetornoEsperadoAA(String(brToNumber(retornoEsperadoAA) - 1))}
+            >
+              −1%
+            </button>
+            <button
+              className="rounded-md bg-[hsl(var(--primary))]/80 text-white px-3 py-1 hover:opacity-90"
+              onClick={() => setRetornoEsperadoAA(String(brToNumber(retornoEsperadoAA) + 1))}
+            >
+              +1%
+            </button>
+          </div>
+
+          {/* Resultado */}
+          <section className="mt-8">
+            <h3 className="text-xl font-semibold mb-3">Resultado</h3>
+
+            <div className={`rounded-md border px-4 py-3 mb-4 ${atingiuMeta ? "bg-green-50 border-green-200 text-green-800" : "bg-yellow-50 border-yellow-200 text-yellow-800"}`}>
+              {alerta}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Informação do INSS */}
-        <Card className="print:hidden">
-          <CardContent className="p-4 text-sm text-muted-foreground space-y-2">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border p-4">
+                <h4 className="text-slate-600 text-sm">Aporte estimado por mês</h4>
+                <p className="text-2xl font-semibold">{moneyToBR(aporteMensal)}</p>
+                <p className="text-xs text-slate-500">(R$ {numberToBR(brToNumber(rendaMensal))} × {brToNumber(percentualInvest)}%)</p>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <h4 className="text-slate-600 text-sm">Você se aposentará com</h4>
+                <p className="text-2xl font-semibold">{moneyToBR(resultado)}</p>
+              </div>
+
+              <div className="rounded-lg border p-4">
+                <h4 className="text-slate-600 text-sm">Poderá gastar por mês (regra 4%)</h4>
+                <p className="text-2xl font-semibold">{moneyToBR(podeGastarMes)}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Nota FIRE simples */}
+          <section className="mt-8 text-sm text-slate-600 leading-relaxed">
+            <h4 className="font-semibold text-slate-700 mb-2">O que é FIRE?</h4>
             <p>
-              Regras oficiais do INSS:&nbsp;
-              <a className="underline text-primary" href="https://www.gov.br/inss/pt-br/direitos-e-deveres/aposentadorias" target="_blank" rel="noreferrer">
-                gov.br/inss/pt-br/direitos-e-deveres/aposentadorias
-              </a>
+              <strong>FIRE</strong> (Financial Independence, Retire Early) é uma regra prática para planejar a
+              independência financeira: você acumula um patrimônio e, ao se aposentar, retira cerca de
+              <strong> 4% ao ano</strong> desse patrimônio (em média). Isso dá uma noção de quanto você
+              pode gastar por mês sem, em teoria, esgotar o dinheiro no longo prazo (considerando retornos reais).
             </p>
-          </CardContent>
-        </Card>
-
-        {/* FIRE — explicação simples */}
-        <Card>
-          <CardContent className="p-4 text-sm">
-            <div className="font-semibold mb-1">O que é FIRE?</div>
-            <p>
-              <b>FIRE</b> significa <i>Financial Independence, Retire Early</i> — <b>Independência Financeira</b>.
-              A ideia é juntar um patrimônio suficiente para viver de renda. Uma regra prática muito usada é a
-              <b> “regra dos 4%”</b>: se você consegue retirar cerca de 4% ao ano do seu patrimônio (em valores de
-              hoje) para pagar seus gastos, provavelmente ele se mantém por bastante tempo sem se esgotar.
-            </p>
-          </CardContent>
-        </Card>
-
-        <div className="text-xs text-muted-foreground print:block flex items-center justify-between">
-          <span>Projeções educativas. Não constitui aconselhamento financeiro, previdenciário ou jurídico.</span>
-          <span>v1.0 beta</span>
+          </section>
         </div>
       </main>
+
+      {/* Rodapé (estático, sem sobreposição) */}
+      <footer className="border-t bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-4 text-sm text-slate-600 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div>© Minhas Calculadoras — <span className="text-slate-500">Versão 1.0 beta</span></div>
+          <div className="space-x-4">
+            <a className="link-muted" href="/politica-privacidade.html">Política de Privacidade</a>
+            <a className="link-muted" href="/termos-de-uso.html">Termos de Uso</a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
-import SiteFooter from "@/components/SiteFooter";
-
-

@@ -79,3 +79,9 @@ body { margin: 0; }
 
 /* plugin do shadcn */
 @plugin "tailwindcss-animate";
+
+/* ===== Ajustes finos (rodapé/link) ===== */
+@layer utilities {
+  .link-muted { color: rgb(100 116 139); }
+  .link-muted:hover { color: rgb(51 65 85); text-decoration: underline; }
+}
