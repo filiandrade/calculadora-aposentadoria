@@ -1,244 +1,263 @@
-import { useMemo, useState } from "react"
-import "./index.css"
+import React, { useMemo, useState } from 'react'
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+} from 'recharts'
 
-/** Utilitários simples de máscara/parse */
-const brToNumber = (s: string) =>
-  Number(String(s).replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "")) || 0
+/** Formatadores */
+const brl = (v: number) =>
+  v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+const pct = (v: number) =>
+  `${v.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%`
 
-const numberToBR = (n: number) =>
-  n.toLocaleString("pt-BR", { maximumFractionDigits: 0 })
+/** Input com prefixo R$ (sem centavos) */
+function MoneyInput({
+  label, value, onChange, placeholder = '0', id,
+}: { label: string; value: number; onChange: (v: number) => void; placeholder?: string; id: string }) {
+  return (
+    <label className="grid gap-1">
+      <span className="text-sm font-medium">{label}</span>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none">R$</span>
+        <input
+          id={id}
+          inputMode="numeric"
+          className="w-full rounded-md border bg-white pl-9 pr-3 py-2 outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]"
+          value={value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+          placeholder={placeholder}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^\d]/g, '')
+            onChange(Number(raw || 0))
+          }}
+        />
+      </div>
+    </label>
+  )
+}
 
-const moneyToBR = (n: number) =>
-  n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
+/** Input com sufixo %  */
+function PercentInput({
+  label, value, onChange, id,
+}: { label: string; value: number; onChange: (v: number) => void; id: string }) {
+  return (
+    <label className="grid gap-1">
+      <span className="text-sm font-medium">{label}</span>
+      <div className="relative">
+        <input
+          id={id}
+          inputMode="decimal"
+          className="w-full rounded-md border bg-white pr-9 pl-3 py-2 outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value.replace(',', '.')) || 0)}
+        />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none">%</span>
+      </div>
+    </label>
+  )
+}
+
+/** Input numérico “simples” */
+function NumberInput({
+  label, value, onChange, id, placeholder,
+}: { label: string; value: number; onChange: (v: number) => void; id: string; placeholder?: string }) {
+  return (
+    <label className="grid gap-1">
+      <span className="text-sm font-medium">{label}</span>
+      <input
+        id={id}
+        inputMode="numeric"
+        className="w-full rounded-md border bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]"
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(Number(e.target.value.replace(/[^\d]/g, '')) || 0)}
+      />
+    </label>
+  )
+}
+
+/** Cálculos principais (rentabilidade real = retorno esperado – inflação) */
+function useCalcs({
+  rendaMensal, investido, alvoPatrimonio, percRendaInvestida,
+  idadeAtual, idadeAposentadoria, retornoNominalAA, inflacaoAA, gastoMensal,
+}: {
+  rendaMensal: number
+  investido: number
+  alvoPatrimonio: number
+  percRendaInvestida: number
+  idadeAtual: number
+  idadeAposentadoria: number
+  retornoNominalAA: number
+  inflacaoAA: number
+  gastoMensal: number
+}) {
+  return useMemo(() => {
+    const anos = Math.max(0, idadeAposentadoria - idadeAtual)
+    const aporteMensal = Math.round((rendaMensal * percRendaInvestida) / 100)
+    const rReal = (retornoNominalAA - inflacaoAA) / 100 // simplificação solicitada
+
+    // crescimento anual (para gráfico e FV)
+    const r = rReal
+    const contribAnual = aporteMensal * 12
+
+    // FV anual fechado (série uniforme) + valor inicial
+    const pow = Math.pow(1 + r, anos)
+    const fvInvest = investido * pow + (r === 0 ? contribAnual * anos : contribAnual * (pow - 1) / r)
+
+    // Regra FIRE (4% a.a.) para “quanto preciso”
+    const taxaRetirada = 0.04
+    const necessario = (gastoMensal * 12) / taxaRetirada
+
+    // Pode gastar por mês com o FV calculado:
+    const podeGastarMes = (fvInvest * taxaRetirada) / 12
+
+    // gráfico ano a ano
+    const chart: { ano: number; saldo: number }[] = []
+    let saldo = investido
+    for (let i = 0; i <= anos; i++) {
+      if (i > 0) saldo = saldo * (1 + r) + contribAnual
+      chart.push({ ano: i, saldo: Math.max(saldo, 0) })
+    }
+
+    const atingiu = fvInvest >= necessario
+
+    return {
+      anos,
+      aporteMensal,
+      rReal,
+      fvInvest,
+      necessario,
+      podeGastarMes,
+      chart,
+      atingiu,
+    }
+  }, [
+    rendaMensal, investido, alvoPatrimonio, percRendaInvestida,
+    idadeAtual, idadeAposentadoria, retornoNominalAA, inflacaoAA, gastoMensal,
+  ])
+}
 
 export default function App() {
-  // Entradas (simplificadas conforme combinado)
-  const [rendaMensal, setRendaMensal] = useState("15.000")
-  const [patrimonioAtual, setPatrimonioAtual] = useState("150.000")
-  const [metaPatrimonio, setMetaPatrimonio] = useState("1.000.000") // opcional
-  const [percentualInvest, setPercentualInvest] = useState("5") // % da renda
-  const [idadeAtual, setIdadeAtual] = useState("37")
-  const [idadeApos, setIdadeApos] = useState("65")
-  const [retornoEsperadoAA, setRetornoEsperadoAA] = useState("10") // % a.a. nominal simplificado
-  const [inflacaoAA, setInflacaoAA] = useState("5") // % a.a.
-  const [gastoAlvoMes, setGastoAlvoMes] = useState("5.000")
+  const [rendaMensal, setRendaMensal] = useState(15000)
+  const [investido, setInvestido] = useState(150000)
+  const [alvoPatrimonio, setAlvoPatrimonio] = useState(1000000) // opcional
+  const [percRendaInvestida, setPercRendaInvestida] = useState(5)
+  const [idadeAtual, setIdadeAtual] = useState(37)
+  const [idadeAposentadoria, setIdadeAposentadoria] = useState(65)
+  const [retornoNominalAA, setRetornoNominalAA] = useState(10)
+  const [inflacaoAA, setInflacaoAA] = useState(5)
+  const [gastoMensal, setGastoMensal] = useState(5000)
 
-  // Derivados
-  const aporteMensal = useMemo(() => {
-    const renda = brToNumber(rendaMensal)
-    const perc = brToNumber(percentualInvest) / 100
-    return Math.max(0, renda * perc)
-  }, [rendaMensal, percentualInvest])
+  const { anos, aporteMensal, rReal, fvInvest, necessario, podeGastarMes, chart, atingiu } = useCalcs({
+    rendaMensal, investido, alvoPatrimonio, percRendaInvestida,
+    idadeAtual, idadeAposentadoria, retornoNominalAA, inflacaoAA, gastoMensal,
+  })
 
-  const anosAteApos = useMemo(() => {
-    const atual = brToNumber(idadeAtual)
-    const alvo = brToNumber(idadeApos)
-    return Math.max(0, alvo - atual)
-  }, [idadeAtual, idadeApos])
+  const limpar = () => {
+    setRendaMensal(15000)
+    setInvestido(150000)
+    setAlvoPatrimonio(1000000)
+    setPercRendaInvestida(5)
+    setIdadeAtual(37)
+    setIdadeAposentadoria(65)
+    setRetornoNominalAA(10)
+    setInflacaoAA(5)
+    setGastoMensal(5000)
+  }
 
-  // Rentabilidade real (retorno - inflação), conforme seu pedido
-  const rentRealAA = useMemo(() => {
-    const r = brToNumber(retornoEsperadoAA) / 100
-    const i = brToNumber(inflacaoAA) / 100
-    return Math.max(-0.99, r - i) // trava mínima
-  }, [retornoEsperadoAA, inflacaoAA])
-
-  // Projeção do patrimônio final com juros compostos mês a mês (usando taxa real)
-  const resultado = useMemo(() => {
-    const P0 = brToNumber(patrimonioAtual)
-    const PMT = aporteMensal
-    const nMeses = anosAteApos * 12
-    const iMes = Math.pow(1 + rentRealAA, 1 / 12) - 1
-
-    const Pfinal =
-      P0 * Math.pow(1 + iMes, nMeses) +
-      (PMT > 0 && iMes !== 0 ? PMT * (Math.pow(1 + iMes, nMeses) - 1) / iMes : PMT * nMeses)
-
-    return Math.max(0, Pfinal)
-  }, [patrimonioAtual, aporteMensal, anosAteApos, rentRealAA])
-
-  // Regra FIRE 4% a.a. → quanto pode gastar por mês (em R$ de hoje)
-  const taxaRetiradaAnual = 0.04
-  const podeGastarMes = useMemo(() => (resultado * taxaRetiradaAnual) / 12, [resultado])
-
-  // Mensagens do “Resultado”
-  const atingiuMeta = resultado >= brToNumber(metaPatrimonio || "0")
-  const alerta = atingiuMeta
-    ? "Parabéns! Você já atinge a meta de aposentadoria com os investimentos atuais."
-    : "Você ainda não atinge a meta — ajuste aportes, idade-alvo ou retorno esperado."
+  const imprimir = () => window.print()
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-[hsl(var(--primary))]">
-            Minhas Calculadoras
-          </h1>
-          <nav className="text-sm text-slate-600">
-            <a className="hover:underline mr-4" href="https://www.gov.br/inss/pt-br/direitos-e-deveres/aposentadorias" target="_blank" rel="noreferrer">
-              Previdência Social (oficial)
-            </a>
-            <span className="rounded bg-[hsl(var(--primary))] text-white px-2 py-1">v1.0 beta</span>
-          </nav>
-        </div>
+    <div className="mx-auto max-w-5xl px-4 py-6">
+      <header className="mb-4">
+        <h1 className="text-2xl font-bold tracking-tight">Cálculo de Liberdade Financeira na Aposentadoria</h1>
+        <p className="text-sm text-muted-foreground">
+          Simule aportes, retorno e gasto desejado. Os valores são em <strong>R$ de hoje</strong>.
+          A rentabilidade <em>real</em> usada nos cálculos é <strong>retorno esperado – inflação</strong>.
+          Regra FIRE (retirada) usada: <strong>4,0% a.a.</strong>
+        </p>
       </header>
 
-      {/* Conteúdo */}
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-4 py-6">
-          <h2 className="text-2xl font-semibold mb-4">Cálculo de Liberdade Financeira na Aposentadoria</h2>
+      {/* Controles principais */}
+      <section className="grid gap-4 md:grid-cols-2">
+        <MoneyInput id="renda" label="Quanto você ganha por mês?" value={rendaMensal} onChange={setRendaMensal} />
+        <MoneyInput id="investido" label="Quanto você já tem investido?" value={investido} onChange={setInvestido} />
+        <MoneyInput id="alvo" label="Com quanto de patrimônio você quer se aposentar? (opcional)" value={alvoPatrimonio} onChange={setAlvoPatrimonio} />
+        <PercentInput id="perc" label="Quantos % da sua renda você investe?" value={percRendaInvestida} onChange={setPercRendaInvestida} />
+        <NumberInput id="idade" label="Qual sua idade atual" value={idadeAtual} onChange={setIdadeAtual} />
+        <NumberInput id="idade-apos" label="Com quantos anos você deseja se aposentar?" value={idadeAposentadoria} onChange={setIdadeAposentadoria} />
+        <PercentInput id="ret" label="Retorno esperado (a.a.)" value={retornoNominalAA} onChange={setRetornoNominalAA} />
+        <PercentInput id="inf" label="Inflação esperada (a.a.)" value={inflacaoAA} onChange={setInflacaoAA} />
+        <MoneyInput id="gasto" label="Quanto você pretende gastar por mês aposentado?" value={gastoMensal} onChange={setGastoMensal} />
+      </section>
 
-          {/* Formulário */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <label className="block text-sm font-medium">Quanto você ganha por mês?</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
-                <input className="w-full rounded-md border px-8 py-2"
-                  value={rendaMensal}
-                  onChange={(e) => setRendaMensal(e.target.value)} />
-              </div>
+      {/* Botões utilitários e tweaks de +1%/-1% */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button className="tweak-btn" onClick={() => setRetornoNominalAA(retornoNominalAA + 1)}>+1% retorno</button>
+        <button className="tweak-btn" onClick={() => setRetornoNominalAA(Math.max(0, retornoNominalAA - 1))}>-1% retorno</button>
+        <span className="ml-2 text-sm text-muted-foreground">Rentabilidade real atual: <strong>{pct(Math.max(0, retornoNominalAA - inflacaoAA))}</strong> a.a.</span>
 
-              <label className="block text-sm font-medium">Quanto % da sua renda você investe?</label>
-              <div className="relative">
-                <input className="w-full rounded-md border pr-8 py-2"
-                  value={percentualInvest}
-                  onChange={(e) => setPercentualInvest(e.target.value)} />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
-              </div>
-
-              <label className="block text-sm font-medium">Qual sua idade atual</label>
-              <input className="w-full rounded-md border px-3 py-2"
-                value={idadeAtual}
-                onChange={(e) => setIdadeAtual(e.target.value)} />
-
-              <label className="block text-sm font-medium">Com quantos anos você deseja se aposentar?</label>
-              <input className="w-full rounded-md border px-3 py-2"
-                value={idadeApos}
-                onChange={(e) => setIdadeApos(e.target.value)} />
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-sm font-medium">Quanto você já tem investido?</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
-                <input className="w-full rounded-md border px-8 py-2"
-                  value={patrimonioAtual}
-                  onChange={(e) => setPatrimonioAtual(e.target.value)} />
-              </div>
-
-              <label className="block text-sm font-medium">Com quanto de patrimônio você quer se aposentar? (opcional)</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
-                <input className="w-full rounded-md border px-8 py-2"
-                  value={metaPatrimonio}
-                  onChange={(e) => setMetaPatrimonio(e.target.value)} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium">Retorno esperado (a.a.)</label>
-                  <div className="relative">
-                    <input className="w-full rounded-md border pr-8 py-2"
-                      value={retornoEsperadoAA}
-                      onChange={(e) => setRetornoEsperadoAA(e.target.value)} />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Inflação esperada (a.a.)</label>
-                  <div className="relative">
-                    <input className="w-full rounded-md border pr-8 py-2"
-                      value={inflacaoAA}
-                      onChange={(e) => setInflacaoAA(e.target.value)} />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">%</span>
-                  </div>
-                </div>
-              </div>
-
-              <label className="block text-sm font-medium">Quanto você pretende gastar por mês aposentado?</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">R$</span>
-                <input className="w-full rounded-md border px-8 py-2"
-                  value={gastoAlvoMes}
-                  onChange={(e) => setGastoAlvoMes(e.target.value)} />
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-3 text-sm text-slate-600">
-            Os valores são em <strong>R$ de hoje</strong>. A rentabilidade <strong>real</strong> usada nos cálculos é
-            <span className="font-semibold"> retorno esperado – inflação</span>. Regra FIRE (retirada): <strong>4.0% a.a.</strong>
-          </p>
-
-          {/* Controles +/- 1% */}
-          <div className="mt-4 flex items-center gap-2">
-            <span className="text-sm text-slate-600">Ajustar rentabilidade real:</span>
-            <button
-              className="rounded-md bg-[hsl(var(--primary))] text-white px-3 py-1 hover:opacity-90"
-              onClick={() => setRetornoEsperadoAA(String(brToNumber(retornoEsperadoAA) - 1))}
-            >
-              −1%
-            </button>
-            <button
-              className="rounded-md bg-[hsl(var(--primary))]/80 text-white px-3 py-1 hover:opacity-90"
-              onClick={() => setRetornoEsperadoAA(String(brToNumber(retornoEsperadoAA) + 1))}
-            >
-              +1%
-            </button>
-          </div>
-
-          {/* Resultado */}
-          <section className="mt-8">
-            <h3 className="text-xl font-semibold mb-3">Resultado</h3>
-
-            <div className={`rounded-md border px-4 py-3 mb-4 ${atingiuMeta ? "bg-green-50 border-green-200 text-green-800" : "bg-yellow-50 border-yellow-200 text-yellow-800"}`}>
-              {alerta}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg border p-4">
-                <h4 className="text-slate-600 text-sm">Aporte estimado por mês</h4>
-                <p className="text-2xl font-semibold">{moneyToBR(aporteMensal)}</p>
-                <p className="text-xs text-slate-500">(R$ {numberToBR(brToNumber(rendaMensal))} × {brToNumber(percentualInvest)}%)</p>
-              </div>
-
-              <div className="rounded-lg border p-4">
-                <h4 className="text-slate-600 text-sm">Você se aposentará com</h4>
-                <p className="text-2xl font-semibold">{moneyToBR(resultado)}</p>
-              </div>
-
-              <div className="rounded-lg border p-4">
-                <h4 className="text-slate-600 text-sm">Poderá gastar por mês (regra 4%)</h4>
-                <p className="text-2xl font-semibold">{moneyToBR(podeGastarMes)}</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Nota FIRE simples */}
-          <section className="mt-8 text-sm text-slate-600 leading-relaxed">
-            <h4 className="font-semibold text-slate-700 mb-2">O que é FIRE?</h4>
-            <p>
-              <strong>FIRE</strong> (Financial Independence, Retire Early) é uma regra prática para planejar a
-              independência financeira: você acumula um patrimônio e, ao se aposentar, retira cerca de
-              <strong> 4% ao ano</strong> desse patrimônio (em média). Isso dá uma noção de quanto você
-              pode gastar por mês sem, em teoria, esgotar o dinheiro no longo prazo (considerando retornos reais).
-            </p>
-          </section>
+        <div className="ml-auto flex gap-2">
+          <button onClick={imprimir} className="rounded-md bg-[hsl(var(--primary))] px-4 py-2 text-white hover:brightness-110">Imprimir</button>
+          <button onClick={limpar} className="rounded-md bg-slate-200 px-4 py-2 hover:brightness-110">Limpar</button>
         </div>
-      </main>
+      </div>
 
-      {/* Rodapé (estático, sem sobreposição) */}
-      <footer className="border-t bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-4 text-sm text-slate-600 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          <div>© Minhas Calculadoras — <span className="text-slate-500">Versão 1.0 beta</span></div>
-          <div className="space-x-4">
-            <a className="link-muted" href="/politica-privacidade.html">Política de Privacidade</a>
-            <a className="link-muted" href="/termos-de-uso.html">Termos de Uso</a>
+      {/* Resultado / Mensagens */}
+      <section className="mt-6">
+        <div className={`rounded-md border px-4 py-3 ${atingiu ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+          {atingiu ? (
+            <>Parabéns! Você já atinge a meta de aposentadoria com os investimentos atuais.</>
+          ) : (
+            <>Você ainda não atinge a meta com os parâmetros atuais. Ajuste aportes/retorno ou gasto mensal desejado.</>
+          )}
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div className="rounded-xl border p-4">
+            <div className="text-sm text-muted-foreground">Aporte estimado por mês</div>
+            <div className="mt-2 text-2xl font-semibold">{brl(aporteMensal)}</div>
+            <div className="text-xs text-muted-foreground">(R$ {brl(rendaMensal).replace('R$ ', '')} × {pct(percRendaInvestida)})</div>
+          </div>
+
+          <div className="rounded-xl border p-4">
+            <div className="text-sm text-muted-foreground">Você se aposentará com</div>
+            <div className="mt-2 text-2xl font-semibold">{brl(Math.round(fvInvest))}</div>
+            <div className="text-xs text-muted-foreground">{anos} anos acumulando a {pct(Math.max(0, retornoNominalAA - inflacaoAA))} real.</div>
+          </div>
+
+          <div className="rounded-xl border p-4">
+            <div className="text-sm text-muted-foreground">Poderá gastar por mês (regra 4,0%)</div>
+            <div className="mt-2 text-2xl font-semibold">{brl(Math.round(podeGastarMes))}</div>
+            <div className="text-xs text-muted-foreground">Com base no patrimônio projetado.</div>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Gráfico */}
+      <section className="mt-6">
+        <h2 className="text-lg font-semibold mb-2">Evolução do patrimônio até a aposentadoria</h2>
+        <div className="h-64 w-full rounded-xl border bg-white p-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chart} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="ano" tick={{ fontSize: 12 }} />
+              <YAxis tickFormatter={(v) => brl(v).replace('R$', 'R$ ')} width={90} />
+              <Tooltip formatter={(value: number) => [brl(value as number), 'Saldo']} labelFormatter={(l) => `${l} ano(s)`} />
+              <Line type="monotone" dataKey="saldo" stroke="#165788" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      {/* Explicação FIRE (simples e em PT-BR) */}
+      <section className="mt-8 rounded-xl border p-4 bg-slate-50">
+        <h3 className="font-semibold mb-2">O que é FIRE?</h3>
+        <p className="text-sm text-muted-foreground">
+          <strong>FIRE</strong> (Financial Independence, Retire Early) é um método simples para estimar o patrimônio necessário
+          para viver de renda. A regra mais usada supõe uma <strong>retirada segura de 4% ao ano</strong> do patrimônio.
+          Assim, para sustentar um gasto anual de <em>{brl(gastoMensal * 12)}</em>, o patrimônio alvo seria
+          aproximadamente <em>{brl((gastoMensal * 12) / 0.04)}</em>.
+        </p>
+      </section>
     </div>
   )
 }

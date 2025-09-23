@@ -1,47 +1,31 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minhas Calculadoras — Cálculo de Liberdade Financeira na Aposentadoria</title>
-  <meta name="description" content="Simule sua liberdade financeira para a aposentadoria: quanto juntar, quanto pode gastar por mês e se já atingiu a meta. Versão 1.0 beta." />
-  <link rel="icon" href="/favicon.png" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minhas Calculadoras — Liberdade Financeira na Aposentadoria</title>
+    <meta name="description" content="Simulador simples para planejar a liberdade financeira na aposentadoria: contribuições, retorno, inflação e gasto desejado." />
+    <link rel="icon" type="image/png" href="/favicon.png.ico" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta name="theme-color" content="#165788" />
 
-  <!-- SEO básico -->
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.minhascalculadoras.com/" />
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B7TS7FYEEM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-B7TS7FYEEM');
+    </script>
 
-  <!-- Open Graph / Cards sociais -->
-  <meta property="og:site_name" content="Minhas Calculadoras" />
-  <meta property="og:title" content="Cálculo de Liberdade Financeira na Aposentadoria" />
-  <meta property="og:description" content="Planeje sua independência financeira com uma calculadora simples e prática." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.minhascalculadoras.com/" />
-  <meta property="og:image" content="/preview.png" />
-  <meta name="twitter:card" content="summary_large_image" />
+    <!-- Google AdSense -->
+    <script async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2807386492616114"
+      crossorigin="anonymous"></script>
 
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B7TS7FYEEM"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-B7TS7FYEEM');
-  </script>
-
-  <!-- AdSense (como você recebeu do Google) -->
-  <script async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2807386492616114"
-          crossorigin="anonymous"></script>
-
-  <!-- css mínimo antes do bundle (evita salto visual) -->
-  <style>
-    html, body, #root { height: 100%; }
-    body { margin: 0; background: #fff; color: #111827; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
