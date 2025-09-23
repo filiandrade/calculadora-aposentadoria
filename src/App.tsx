@@ -392,3 +392,6 @@ export default function App() {
     </div>
   )
 }
+import SiteFooter from "@/components/SiteFooter";
+
+
