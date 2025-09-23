@@ -3,9 +3,24 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from "recharts"
 
-/* ===== Helpers de formatação ===== */
+/* ===== Helpers ===== */
 const fmtBRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })
+
+/** Formato compacto para eixo Y: "R$ 250 mil" / "R$ 1,2 mi" */
+function fmtCompactBRL(n: number): string {
+  const abs = Math.abs(n)
+  if (abs >= 1_000_000) {
+    const v = n / 1_000_000
+    return `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`
+  }
+  if (abs >= 1_000) {
+    const v = n / 1_000
+    return `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} mil`
+  }
+  return `R$ ${n.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`
+}
+
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n))
 
 /* ===== Inputs com prefixo/sufixo ===== */
@@ -64,9 +79,10 @@ function NumberInput({
   )
 }
 
-/* ===== Cálculo principal ===== */
+/* ===== Parâmetros da regra ===== */
 const TAXA_RETIRADA = 0.04 // 4% a.a. (FIRE)
 
+/* ===== App ===== */
 export default function App() {
   // Entradas (valores “de hoje”)
   const [rendaMensal, setRendaMensal] = useState(15000)
@@ -84,46 +100,67 @@ export default function App() {
 
   // rentabilidade REAL = retorno esperado – inflação
   const rentRealAA = useMemo(()=> (retornoNominalAA - inflacaoAA)/100, [retornoNominalAA, inflacaoAA])
+  const iMensal = useMemo(()=> Math.pow(1 + rentRealAA, 1/12) - 1, [rentRealAA])
 
-  // Projeção com capitalização mensal
-  const saldoProjetado = useMemo(()=>{
-    const i = Math.pow(1 + rentRealAA, 1/12) - 1 // taxa mensal real
+  // Projeção até a aposentadoria (FV em R$ de hoje)
+  const saldoNaAposentadoria = useMemo(()=>{
     const n = anos * 12
     let saldo = investido
     for (let m=0; m<n; m++) {
-      saldo = saldo * (1 + i) + aporteMensal
+      saldo = saldo * (1 + iMensal) + aporteMensal
     }
     return Math.max(0, saldo)
-  }, [investido, anos, rentRealAA, aporteMensal])
+  }, [investido, anos, iMensal, aporteMensal])
 
-  // Meta FIRE (se não houver alvo informado, usa FIRE baseado no gasto)
+  // Regra FIRE “clássica” em termos reais: saque anual fixo = 4% do saldo ao aposentar (em R$ de hoje)
+  const saqueAnualFixo = useMemo(()=> saldoNaAposentadoria * TAXA_RETIRADA, [saldoNaAposentadoria])
+  const saqueMensalFixo = useMemo(()=> saqueAnualFixo / 12, [saqueAnualFixo])
+
+  // Se o usuário não informar um alvo, usamos o FIRE com base no gasto desejado
   const necessario = useMemo(()=>{
     const base = alvoPatrimonio > 0 ? alvoPatrimonio : (gastoMensal * 12) / TAXA_RETIRADA
     return Math.max(0, base)
   }, [alvoPatrimonio, gastoMensal])
 
-  const podeGastarMes = useMemo(()=> (saldoProjetado * TAXA_RETIRADA) / 12, [saldoProjetado])
-  const diff = saldoProjetado - necessario
+  const podeGastarMes = useMemo(()=> (saldoNaAposentadoria * TAXA_RETIRADA) / 12, [saldoNaAposentadoria])
+  const diff = saldoNaAposentadoria - necessario
   const atingiu = diff >= 0
 
-  // >>> Série anual para o gráfico (X = IDADE) <<<
+  // >>> Série por idade, com 2 fases: acumulação (até idadeApos) e pós-aposentadoria (saques fixos em termos reais)
   const chartData = useMemo(()=>{
     const pontos: { idade: number; saldo: number }[] = []
-    const i = Math.pow(1 + rentRealAA, 1/12) - 1
+
+    // Fase 1 — acumulação mês a mês até a idade de aposentadoria
     let s = investido
+    let idade = idadeAtual
+    pontos.push({ idade, saldo: Math.max(0, s) })
 
-    // ponto inicial = idade atual
-    pontos.push({ idade: idadeAtual, saldo: s })
-
-    // a cada ano, acumula 12 meses e adiciona ponto com a IDADE correspondente
-    for (let idade = idadeAtual + 1; idade <= idadeApos; idade++) {
+    for (let a = 1; a <= anos; a++) {
       for (let m = 0; m < 12; m++) {
-        s = s * (1 + i) + aporteMensal
+        s = s * (1 + iMensal) + aporteMensal
       }
+      idade = idadeAtual + a
       pontos.push({ idade, saldo: Math.max(0, s) })
     }
+
+    // Fase 2 — pós-aposentadoria: simular +30 anos (ou até zerar)
+    const horizontePos = 30
+    let sPos = s
+    for (let a = 1; a <= horizontePos; a++) {
+      for (let m = 0; m < 12; m++) {
+        sPos = sPos * (1 + iMensal) - saqueMensalFixo
+        if (sPos <= 0) {
+          sPos = 0
+          break
+        }
+      }
+      const idadePos = idadeApos + a
+      pontos.push({ idade: idadePos, saldo: Math.max(0, sPos) })
+      if (sPos <= 0) break
+    }
+
     return pontos
-  }, [idadeAtual, idadeApos, investido, rentRealAA, aporteMensal])
+  }, [investido, idadeAtual, idadeApos, anos, iMensal, aporteMensal, saqueMensalFixo])
 
   // Ações
   const limpar = () => {
@@ -168,7 +205,7 @@ export default function App() {
           Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada =
           {" "}
           <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
-          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong>
+          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> (saque anual fixo a partir da aposentadoria).
         </p>
       </header>
 
@@ -179,13 +216,13 @@ export default function App() {
         <MoneyInput id="alvo" label="Com quanto de patrimônio quer se aposentar? (opcional)" value={alvoPatrimonio} onChange={setAlvoPatrimonio}/>
         <PercentInput id="perc" label="Quantos % da renda você investe?" value={percInvestRenda} onChange={(v)=>setPercInvestRenda(clamp(v,0,100))}/>
         <NumberInput id="idade" label="Qual sua idade atual" value={idadeAtual} onChange={(v)=>setIdadeAtual(clamp(v,0,100))}/>
-        <NumberInput id="apos" label="Com quantos anos deseja se aposentar?" value={idadeApos} onChange={(v)=>setIdadeApos(clamp(v,0,100))}/>
+        <NumberInput id="apos" label="Com quantos anos deseja se aposentar?" value={idadeApos} onChange={(v)=>setIdadeApos(clamp(v,0,120))}/>
         <PercentInput id="ret" label="Retorno esperado (a.a.)" value={retornoNominalAA} onChange={(v)=>setRetornoNominalAA(clamp(v,-50,100))}/>
         <PercentInput id="inf" label="Inflação esperada (a.a.)" value={inflacaoAA} onChange={(v)=>setInflacaoAA(clamp(v,-10,50))}/>
         <MoneyInput id="gasto" label="Quanto pretende gastar por mês aposentado?" value={gastoMensal} onChange={setGastoMensal}/>
       </section>
 
-      {/* Resultado */}
+      {/* Resultado (cards) */}
       <section className="mt-6">
         <div className={`rounded-md border px-4 py-3 ${atingiu ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
           {atingiu
@@ -197,23 +234,19 @@ export default function App() {
           <div className="rounded-xl border p-4">
             <div className="text-sm text-slate-600">Aporte estimado por mês</div>
             <div className="mt-2 text-2xl font-semibold">{fmtBRL(aporteMensal)}</div>
-            <div className="text-xs text-slate-500">
-              (R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)
-            </div>
+            <div className="text-xs text-slate-500">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
           </div>
 
           <div className="rounded-xl border p-4">
-            <div className="text-sm text-slate-600">Você se aposentará com</div>
-            <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(saldoProjetado))}</div>
-            <div className="text-xs text-slate-500">
-              {anos} anos acumulando a {(rentRealAA*100).toFixed(1)}% a.a. real
-            </div>
+            <div className="text-sm text-slate-600">Patrimônio ao aposentar</div>
+            <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
+            <div className="text-xs text-slate-500">{anos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
           </div>
 
           <div className="rounded-xl border p-4">
             <div className="text-sm text-slate-600">Poderá gastar por mês (regra 4%)</div>
             <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(podeGastarMes))}</div>
-            <div className="text-xs text-slate-500">Com base no patrimônio projetado</div>
+            <div className="text-xs text-slate-500">Saque real fixo após aposentar</div>
           </div>
         </div>
 
@@ -227,12 +260,11 @@ export default function App() {
         </div>
       </section>
 
-      {/* Controles de sensibilidade + Gráfico */}
+      {/* Sensibilidade + Gráfico (com declínio pós-aposentadoria) */}
       <section className="mt-6">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-sm text-slate-700">
-            Evolução do patrimônio (R$ de hoje) — rentabilidade real:{" "}
-            <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong>
+            Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong>
           </span>
           <div className="ml-auto flex gap-2">
             <button className="tweak-btn" onClick={()=>bumpReal(-1)}>−1% retorno</button>
@@ -240,13 +272,12 @@ export default function App() {
           </div>
         </div>
 
-        <div className="h-64 w-full rounded-xl border bg-white p-2">
+        <div className="h-72 w-full rounded-xl border bg-white p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              {/* >>> X = IDADE <<< */}
               <XAxis dataKey="idade" label={{ value: "Idade", position: "insideBottomRight", offset: -4 }} />
-              <YAxis tickFormatter={(v)=> (v/1000).toFixed(0)+"k"} width={50} />
+              <YAxis tickFormatter={(v)=> fmtCompactBRL(Number(v))} width={80} />
               <Tooltip
                 formatter={(val)=>[fmtBRL(Number(val)), "Saldo"]}
                 labelFormatter={(l)=>`Idade: ${l} anos`}
@@ -255,6 +286,11 @@ export default function App() {
             </LineChart>
           </ResponsiveContainer>
         </div>
+
+        <p className="mt-2 text-xs text-slate-500">
+          No pós-aposentadoria, o saque anual é fixo em termos reais (4% do saldo inicial ao aposentar).
+          Se a rentabilidade real ficar <em>abaixo</em> desse patamar, o patrimônio tende a diminuir ao longo do tempo.
+        </p>
       </section>
 
       {/* Explicação FIRE (simples) */}
