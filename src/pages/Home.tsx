@@ -62,9 +62,11 @@ export default function Home() {
           <div key={calc.path} className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold text-neutral-800">{calc.name}</span>
-              {!calc.available && (
+              {(!calc.available && (
                 <span className="ml-2 px-2 py-0.5 rounded-full bg-neutral-200 text-xs text-neutral-500">em breve</span>
-              )}
+              )) || (calc.available && calc.name !== 'Liberdade Financeira' && calc.name !== 'Aposentadoria Oficial (INSS)' && (
+                <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold">BETA</span>
+              ))}
             </div>
             <div className="text-sm text-neutral-500 mb-2">{calc.description}</div>
             {calc.available ? (
