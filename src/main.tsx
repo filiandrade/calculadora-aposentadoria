@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
 import Layout from './Layout'
 import Home from './pages/Home'
 import LiberdadeFinanceira from './pages/LiberdadeFinanceira'
@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           ·{' '}
           <a href="/termos-de-uso.html" className="underline text-blue-700">Termos de Uso</a>{' '}
           ·{' '}
-          <a href="/contato" className="underline text-blue-700">Contato</a>
+          <Link to="/contato" className="underline text-blue-700">Contato</Link>
         </div>
       </footer>
     </BrowserRouter>

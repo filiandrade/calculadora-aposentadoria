@@ -67,7 +67,7 @@ export default function AposentadoriaOficial() {
           <strong>Simule sua aposentadoria oficial pelo INSS</strong>.<br />
           <span className="text-xs text-neutral-500">Trabalhador urbano CLT. Regras válidas para 2025. Resultados são estimativas simplificadas.</span>
         </div>
-        <form className="grid gap-4 md:grid-cols-2 text-[15px]">
+        <form className="grid gap-4 md:grid-cols-2 text-[15px] items-end">
           <div>
             <label className="text-xs font-medium">Sexo</label>
             <div className="flex gap-2 mt-1">
@@ -101,6 +101,12 @@ export default function AposentadoriaOficial() {
             </div>
             <div className="text-xs text-neutral-400 mt-1">Média dos salários de contribuição desde julho/1994 (corrigidos). Usado para estimar o valor do benefício.</div>
           </div>
+          <div className="md:col-span-2 flex justify-end">
+            <label className="text-xs font-medium sr-only">Imprimir</label>
+            <button type="button" onClick={()=>window.print()} className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition text-xs">
+              Imprimir
+            </button>
+          </div>
           <div className="md:col-span-2">
             <label className="text-xs font-medium">Já contribuiu antes de 13/11/2019?</label>
             <div className="flex gap-2 mt-1">
@@ -116,11 +122,6 @@ export default function AposentadoriaOficial() {
           - Não considera aposentadoria especial, rural, professor, servidor público, etc.<br />
           - O valor do benefício é apenas uma estimativa.<br />
           - Para cálculo oficial, acesse o <a href="https://meu.inss.gov.br/" className="underline" target="_blank" rel="noopener noreferrer">Meu INSS</a>.
-        </div>
-        <div className="mt-6 flex justify-end">
-          <button type="button" onClick={()=>window.print()} className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition text-xs">
-            Imprimir
-          </button>
         </div>
       </div>
 

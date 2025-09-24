@@ -53,11 +53,14 @@ const calculators = [
 
 export default function Home() {
   return (
-  <div className="mx-auto max-w-3xl px-4 py-10 text-[15px]">
+    <div className="mx-auto max-w-3xl px-4 py-10 text-[15px]">
       <div className="mb-8 rounded-xl bg-neutral-50 border border-neutral-200 p-4 text-sm text-neutral-500 text-center">
         <strong>Aviso:</strong> Nenhum dado é coletado ou armazenado. Todas as simulações são feitas localmente no seu navegador. Para informações oficiais, consulte sempre os sites dos órgãos competentes.
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+
+      {/* Seção Calculadoras */}
+      <h2 className="text-xl font-semibold mb-4 text-neutral-900">Calculadoras</h2>
+      <div className="grid gap-6 md:grid-cols-2 mb-12">
         {calculators.map(calc => (
           <div key={calc.path} className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
             <div className="flex items-center gap-2">
@@ -71,9 +74,22 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      {/* Seção Comparadores */}
+      <h2 className="text-xl font-semibold mb-4 text-neutral-900">Comparadores</h2>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100 opacity-60">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-neutral-800">Comparador de Cartões de Crédito</span>
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-xs text-blue-700 font-bold">Em breve</span>
+          </div>
+          <div className="text-sm text-neutral-500 mb-2">Compare taxas, benefícios e custos dos principais cartões do mercado.</div>
+          <button disabled className="inline-block mt-auto rounded-full bg-neutral-200 px-4 py-2 text-neutral-500 text-sm font-medium shadow-sm cursor-not-allowed">Acessar</button>
+        </div>
+      </div>
+
       <div className="mt-10 text-xs text-neutral-400 text-center flex flex-col gap-2">
         <span>Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado.</span>
-        <Link to="/contato" className="underline text-blue-700">Contato</Link>
       </div>
     </div>
   )
