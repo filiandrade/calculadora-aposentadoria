@@ -1,21 +1,56 @@
+import { useState } from "react"
+
 export default function JurosCompostos() {
+  const [valorInicial, setValorInicial] = useState(1000)
+  const [aporteMensal, setAporteMensal] = useState(1000)
+  const [taxa, setTaxa] = useState(10)
+  const [anos, setAnos] = useState(20)
+  const [resultado, setResultado] = useState<null | { total: number, investido: number, juros: number }>(null)
+
+  function calcular() {
+    const meses = anos * 12
+    const i = taxa / 100 / 12
+    let saldo = valorInicial
+    let investido = valorInicial
+    for (let m = 1; m <= meses; m++) {
+      saldo = saldo * (1 + i) + aporteMensal
+      investido += aporteMensal
+    }
+    const juros = saldo - investido
+    setResultado({ total: saldo, investido, juros })
+  }
+
   return (
-  <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
+    <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Juros Compostos <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
-        <p className="text-neutral-600 text-base mb-2">
-          <strong>O que é?</strong><br/>
-          Juros compostos são a base do crescimento exponencial dos investimentos. Ao reinvestir os rendimentos, o dinheiro "trabalha para você" e cresce cada vez mais rápido ao longo do tempo.
-        </p>
-        <p className="text-neutral-600 text-base mb-2">
-          <strong>Como funciona?</strong><br/>
-          Você informa o valor inicial, os aportes mensais, a taxa de juros anual e o prazo. A calculadora mostra quanto você terá ao final do período, quanto investiu e quanto foi ganho em juros.
-        </p>
-        <p className="text-neutral-600 text-base mb-2">
-          <strong>Exemplo prático:</strong><br/>
-          Se investir R$ 1.000,00 por mês a 10% ao ano durante 20 anos, terá investido R$ 240.000,00 e poderá acumular mais de R$ 700.000,00, graças aos juros sobre juros.
-        </p>
-        <div className="text-neutral-400 italic">A calculadora estará disponível em breve. Enquanto isso, aproveite para entender o conceito e planejar seus investimentos!</div>
+        <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
+          <div>
+            <label className="block text-xs mb-1">Valor inicial</label>
+            <input type="number" className="input input-bordered w-full" min={0} value={valorInicial} onChange={e => setValorInicial(Number(e.target.value))} />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Aporte mensal</label>
+            <input type="number" className="input input-bordered w-full" min={0} value={aporteMensal} onChange={e => setAporteMensal(Number(e.target.value))} />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Taxa de juros anual (%)</label>
+            <input type="number" className="input input-bordered w-full" min={0} step={0.01} value={taxa} onChange={e => setTaxa(Number(e.target.value))} />
+          </div>
+          <div>
+            <label className="block text-xs mb-1">Prazo (anos)</label>
+            <input type="number" className="input input-bordered w-full" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} />
+          </div>
+          <button type="submit" className="btn btn-primary mt-2">Calcular</button>
+        </form>
+        {resultado && (
+          <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-sm">
+            <div><strong>Total acumulado:</strong> R$ {resultado.total.toLocaleString('pt-BR')}</div>
+            <div><strong>Total investido:</strong> R$ {resultado.investido.toLocaleString('pt-BR')}</div>
+            <div><strong>Juros ganhos:</strong> R$ {resultado.juros.toLocaleString('pt-BR')}</div>
+            <div className="mt-2 text-xs text-neutral-500">* Simulação simplificada, não considera impostos ou taxas.</div>
+          </div>
+        )}
       </div>
       <div className="text-xs text-neutral-400 text-center mt-6">
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro.<br/>
