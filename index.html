@@ -4,8 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Minhas Calculadoras — Liberdade Financeira na Aposentadoria</title>
-    <meta name="description" content="Simulador simples para planejar a liberdade financeira na aposentadoria: contribuições, retorno, inflação e gasto desejado." />
-    <link rel="icon" type="image/png" href="/favicon.png.ico" />
+    <meta name="description" content="Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado." />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Minhas Calculadoras — Liberdade Financeira na Aposentadoria" />
+    <meta property="og:description" content="Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado." />
+    <meta property="og:image" content="https://www.minhascalculadoras.com/preview.png" />
+    <meta property="og:url" content="https://www.minhascalculadoras.com/" />
+    <meta property="og:type" content="website" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Minhas Calculadoras — Liberdade Financeira na Aposentadoria" />
+    <meta name="twitter:description" content="Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado." />
+    <meta name="twitter:image" content="https://www.minhascalculadoras.com/preview.png" />
+    <!-- Canonical -->
+    <link rel="canonical" href="https://www.minhascalculadoras.com/" />
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Minhas Calculadoras",
+      "url": "https://www.minhascalculadoras.com/",
+      "description": "Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado."
+    }
+    </script>
+  <link rel="icon" type="image/png" href="/favicon.png.ico" />
+  <link rel="preload" as="image" href="/preview.png" imagesrcset="/preview.png 1x, /icon-512.png 2x" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="theme-color" content="#165788" />
 
@@ -25,7 +49,11 @@
 
   </head>
   <body>
-    <div id="root"></div>
+    <header aria-label="Cabeçalho do site"></header>
+    <main id="main-content" tabindex="-1">
+      <div id="root"></div>
+    </main>
+    <footer aria-label="Rodapé do site"></footer>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
