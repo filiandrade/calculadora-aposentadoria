@@ -1,13 +1,37 @@
 import { useState } from "react"
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 
 export default function RentabilidadeReal() {
   const [rendimento, setRendimento] = useState(8)
   const [inflacao, setInflacao] = useState(4)
+  const [anos, setAnos] = useState(10)
   const [resultado, setResultado] = useState<null | { real: number }>(null)
+  const [grafico, setGrafico] = useState<{ ano: number, bruto: number, real: number }[]>([])
 
   function calcular() {
-    const real = ((1 + rendimento / 100) / (1 + inflacao / 100) - 1) * 100
-    setResultado({ real })
+    const data = []
+    let bruto = 100
+    let real = 100
+    for (let a = 1; a <= anos; a++) {
+      bruto = bruto * (1 + rendimento / 100)
+      real = real * ((1 + rendimento / 100) / (1 + inflacao / 100))
+      data.push({ ano: a, bruto, real })
+    }
+    const realPercent = ((1 + rendimento / 100) / (1 + inflacao / 100) - 1) * 100
+    setResultado({ real: realPercent })
+    setGrafico(data)
+  }
+
+  function limpar() {
+    setRendimento(8)
+    setInflacao(4)
+    setAnos(10)
+    setResultado(null)
+    setGrafico([])
+  }
+
+  function imprimir() {
+    window.print()
   }
 
   return (
@@ -15,21 +39,47 @@ export default function RentabilidadeReal() {
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Rentabilidade Real <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
-          <div>
-            <label className="block text-xs mb-1">Rendimento bruto (%)</label>
-            <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={rendimento} onChange={e => setRendimento(Number(e.target.value))} />
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs mb-1">Rendimento bruto (%)</label>
+              <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={rendimento} onChange={e => setRendimento(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="block text-xs mb-1">Inflação (%)</label>
+              <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={inflacao} onChange={e => setInflacao(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="block text-xs mb-1">Prazo (anos)</label>
+              <input type="number" className="input input-bordered w-full" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs mb-1">Inflação (%)</label>
-            <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={inflacao} onChange={e => setInflacao(Number(e.target.value))} />
+          <div className="flex justify-end gap-2 mt-4">
+            <button type="button" className="btn btn-outline" onClick={limpar}>Limpar</button>
+            <button type="button" className="btn btn-outline" onClick={imprimir}>Imprimir</button>
+            <button type="submit" className="btn btn-primary">Calcular</button>
           </div>
-          <button type="submit" className="btn btn-primary mt-2">Calcular</button>
         </form>
         {resultado && (
-          <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-sm">
-            <div><strong>Rentabilidade real:</strong> {resultado.real.toFixed(2)}%</div>
-            <div className="mt-2 text-xs text-neutral-500">* Simulação simplificada, não considera impostos ou taxas.</div>
-          </div>
+          <>
+            <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-base">
+              <div><strong>Rentabilidade real anual:</strong> {resultado.real.toFixed(2)}%</div>
+            </div>
+            <div className="mt-6">
+              <h3 className="font-semibold mb-2 text-neutral-800 text-sm">Evolução do investimento (R$100 iniciais)</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={grafico} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="ano" label={{ value: "Ano", position: "insideBottomRight", offset: -4 }} />
+                  <YAxis tickFormatter={v => `R$ ${Math.round(v)}`} />
+                  <Tooltip formatter={(val: number, name: string) => [`R$ ${val.toLocaleString('pt-BR')}`, name === 'bruto' ? 'Bruto' : 'Real']} labelFormatter={l => `Ano: ${l}`} />
+                  <Legend verticalAlign="top" height={36} formatter={v => v === 'bruto' ? 'Bruto' : 'Real (descontada inflação)'} />
+                  <Line type="monotone" dataKey="bruto" stroke="#2563eb" strokeWidth={2.5} dot={false} name="Bruto" />
+                  <Line type="monotone" dataKey="real" stroke="#10b981" strokeWidth={2.5} dot={false} name="Real" />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="mt-2 text-xs text-neutral-500">* Gráfico ilustrativo. Valores aproximados, sem impostos ou taxas.</div>
+            </div>
+          </>
         )}
       </div>
       <div className="text-xs text-neutral-400 text-center mt-6">
