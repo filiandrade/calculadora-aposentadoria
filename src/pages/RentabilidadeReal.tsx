@@ -4,9 +4,18 @@ export default function RentabilidadeReal() {
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Rentabilidade Real <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <p className="text-neutral-600 text-base mb-2">
-          Calcule o rendimento real dos seus investimentos descontando a inflação. Informe o rendimento bruto e a inflação do período para ver o ganho real.
+          <strong>O que é?</strong><br/>
+          Rentabilidade real é o quanto seu dinheiro realmente cresce, descontando o efeito da inflação. Um investimento que rende 10% ao ano, mas com inflação de 6%, tem ganho real de apenas 3,77%.
         </p>
-        <div className="text-neutral-400 italic">Funcionalidade em desenvolvimento. Resultados são apenas estimativas.</div>
+        <p className="text-neutral-600 text-base mb-2">
+          <strong>Como funciona?</strong><br/>
+          Você informa o rendimento bruto e a inflação do período. A calculadora mostra o ganho real, ou seja, quanto seu poder de compra aumentou de fato.
+        </p>
+        <p className="text-neutral-600 text-base mb-2">
+          <strong>Exemplo prático:</strong><br/>
+          Se um investimento rendeu 8% no ano e a inflação foi de 4%, o ganho real foi de aproximadamente 3,85%.
+        </p>
+        <div className="text-neutral-400 italic">A calculadora estará disponível em breve. Aproveite para entender o conceito e comparar investimentos!</div>
       </div>
       <div className="text-xs text-neutral-400 text-center mt-6">
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro.<br/>

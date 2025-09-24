@@ -12,6 +12,7 @@ import FinanciamentoImobiliario from './pages/FinanciamentoImobiliario'
 import CltVsPj from './pages/CltVsPj'
 import Inss from './pages/Inss'
 import AluguelVsFinanciamento from './pages/AluguelVsFinanciamento'
+import Contato from './pages/Contato'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="/clt-vs-pj" element={<CltVsPj />} />
           <Route path="/inss" element={<Inss />} />
           <Route path="/aluguel-vs-financiamento" element={<AluguelVsFinanciamento />} />
+          <Route path="/contato" element={<Contato />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>
