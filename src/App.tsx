@@ -293,23 +293,23 @@ export default function App() {
 
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-base text-neutral-500">Aporte estimado por mês</div>
-            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(aporteMensal)}</div>
-            <div className="text-xs text-neutral-400">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
+            <div className="text-sm text-neutral-500 whitespace-nowrap">Aporte estimado por mês</div>
+            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(aporteMensal)}</div>
+            <div className="text-xs text-neutral-400 whitespace-nowrap">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
           </div>
 
           <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-base text-neutral-500">Patrimônio ao aposentar</div>
-            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
-            <div className="text-xs text-neutral-400">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
+            <div className="text-sm text-neutral-500 whitespace-nowrap">Patrimônio ao aposentar</div>
+            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
+            <div className="text-xs text-neutral-400 whitespace-nowrap">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
           </div>
 
           <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-base text-neutral-500">
+            <div className="text-sm text-neutral-500 whitespace-nowrap">
               Poderá gastar por mês ({metodoSaque === "gasto" ? "gasto desejado" : "regra 4%"})
             </div>
-            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(Math.round(podeGastarMes))}</div>
-            <div className="text-xs text-neutral-400">
+            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(podeGastarMes))}</div>
+            <div className="text-xs text-neutral-400 whitespace-nowrap">
               {metodoSaque === "gasto"
                 ? "Saque real fixo igual ao gasto desejado"
                 : "Saque real fixo de 4% a.a. do patrimônio (≈ 0,333% ao mês)"}
@@ -318,10 +318,10 @@ export default function App() {
         </div>
 
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-neutral-100">
-          <div className="text-base text-neutral-500">
+          <div className="text-sm text-neutral-500 whitespace-nowrap">
             Meta considerada: {alvoPatrimonio > 0 ? "alvo informado" : "FIRE (gasto × 12 ÷ 4%)"}
           </div>
-          <div className={`text-lg font-semibold ${atingiu ? "text-emerald-700" : "text-amber-700"}`}>
+          <div className={`text-base font-semibold whitespace-nowrap ${atingiu ? "text-emerald-700" : "text-amber-700"}`}>
             {atingiu ? `Você passou da meta em ${fmtBRL(diff)}.` : `Faltam ${fmtBRL(-diff)} para atingir a meta.`}
           </div>
         </div>
