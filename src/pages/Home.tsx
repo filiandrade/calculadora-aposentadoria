@@ -2,8 +2,8 @@ import { Link } from "react-router-dom"
 
 const calculators = [
   {
-    name: "Aposentadoria",
-    path: "/aposentadoria",
+    name: "Liberdade Financeira",
+    path: "/liberdade-financeira",
     description: "Quando posso me aposentar? Quanto preciso acumular?",
     available: true,
   },

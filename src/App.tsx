@@ -372,6 +372,33 @@ export default function App() {
       <div className="mt-10 text-xs text-neutral-400 text-center print:block">
         Projeções educativas. Não constitui aconselhamento financeiro, previdenciário ou jurídico.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page">
+        <h3 className="font-semibold mb-2 text-lg text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-base text-neutral-500 mb-2">
+          Esta calculadora de <strong>Liberdade Financeira</strong> utiliza o método FIRE (Financial Independence, Retire Early) para estimar o patrimônio necessário para viver de renda. Os cálculos consideram:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-base mb-2">
+          <li>O valor que você já possui investido e os aportes mensais futuros.</li>
+          <li>O retorno esperado dos investimentos, descontada a inflação (rentabilidade real).</li>
+          <li>O tempo até a aposentadoria e o tempo de vida desejado.</li>
+          <li>O método de saque: regra dos 4% ao ano (FIRE) ou um valor de gasto mensal desejado.</li>
+        </ul>
+        <p className="text-base text-neutral-500 mb-2">
+          O simulador projeta o crescimento do patrimônio até a aposentadoria e simula os saques durante a fase de usufruto, mostrando se o patrimônio é suficiente para sustentar o padrão de vida desejado.
+        </p>
+        <p className="text-base text-neutral-500 mb-2">
+          <strong>Importante:</strong> Os resultados são estimativas baseadas nos parâmetros informados e não constituem aconselhamento financeiro. Para simulações oficiais de aposentadoria, acesse o site do <a href="https://www.gov.br/inss/pt-br/direitos-e-deveres/aposentadorias" target="_blank" rel="noopener noreferrer" className="underline">Instituto Nacional de Seguridade Social (INSS)</a>.
+        </p>
+      </section>
+
+      {/* Endereço do site para impressão */}
+      <div className="hidden print:block mt-8 text-center text-xs text-neutral-400">
+        Acesse: <a href="https://minhascalculadoras.com" className="underline text-blue-700">https://minhascalculadoras.com</a>
+      </div>
+// Adiciona utilitário de impressão para quebra de página
+// tailwind.config.js deve ter 'break-before' em 'safelist' se necessário
     </div>
   )
 }
