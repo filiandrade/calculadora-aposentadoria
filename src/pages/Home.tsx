@@ -86,6 +86,14 @@ export default function Home() {
           <div className="text-sm text-neutral-500 mb-2">Compare taxas, benefícios e custos dos principais cartões do mercado.</div>
           <button disabled className="inline-block mt-auto rounded-full bg-neutral-200 px-4 py-2 text-neutral-500 text-sm font-medium shadow-sm cursor-not-allowed">Acessar</button>
         </div>
+        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100 opacity-60">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-neutral-800">Comparador de Renda Fixa</span>
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-xs text-green-700 font-bold">Em breve</span>
+          </div>
+          <div className="text-sm text-neutral-500 mb-2">Compare CDB, Tesouro, LCIs, LCAs e outros investimentos de renda fixa.</div>
+          <button disabled className="inline-block mt-auto rounded-full bg-neutral-200 px-4 py-2 text-neutral-500 text-sm font-medium shadow-sm cursor-not-allowed">Acessar</button>
+        </div>
       </div>
 
       <div className="mt-10 text-xs text-neutral-400 text-center flex flex-col gap-2">

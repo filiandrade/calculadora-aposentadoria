@@ -38,8 +38,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <span className="rounded-full bg-black text-white px-4 py-2 text-2xl font-bold tracking-tight shadow-lg border border-neutral-200" style={{letterSpacing: '-0.04em', boxShadow: '0 2px 12px 0 #0001'}}>MC</span>
               <span className="text-2xl font-light tracking-tight text-neutral-900" style={{letterSpacing: '-0.04em', fontFamily: 'Inter, Segoe UI, Arial, sans-serif', fontWeight: 300}}>Minhas Calculadoras</span>
             </Link>
-            <HomeButton />
             <ShareButtons />
+          </div>
+          <div className="flex items-center gap-2">
+            <HomeButton />
           </div>
           <span className="hidden md:block text-xs text-neutral-400 font-mono tracking-wide" style={{letterSpacing: '0.08em'}}>Simule, compare e planeje seu futuro financeiro.</span>
         </div>
