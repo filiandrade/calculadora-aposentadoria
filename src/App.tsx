@@ -239,10 +239,8 @@ export default function App() {
             </button>
           </div>
         </div>
-        <p className="mt-2 text-base text-neutral-500">
-          Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada =
-          <strong> {retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
-          <span className="mx-2">·</span>Regra FIRE: <strong>4,0% a.a.</strong> ou “gasto mensal desejado”.
+        <p className="mt-2 text-sm text-neutral-500 whitespace-nowrap">
+          Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada = <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong> <span className="mx-2">·</span>Regra FIRE: <strong>4,0% a.a.</strong> ou “gasto mensal desejado”.
         </p>
       </header>
 
@@ -312,7 +310,7 @@ export default function App() {
             <div className="text-xs text-neutral-400 whitespace-nowrap">
               {metodoSaque === "gasto"
                 ? "Saque real fixo igual ao gasto desejado"
-                : "Saque real fixo de 4% a.a. do patrimônio (≈ 0,333% ao mês)"}
+                : "Saque real fixo de 4% a.a. do patrimônio"}
             </div>
           </div>
         </div>
