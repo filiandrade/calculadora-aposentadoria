@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './Layout'
 import Home from './pages/Home'
 import LiberdadeFinanceira from './pages/LiberdadeFinanceira'
+import AposentadoriaOficial from './pages/AposentadoriaOficial'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/liberdade-financeira" element={<LiberdadeFinanceira />} />
+          <Route path="/aposentadoria-oficial" element={<AposentadoriaOficial />} />
           {/* Outras calculadoras futuramente */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

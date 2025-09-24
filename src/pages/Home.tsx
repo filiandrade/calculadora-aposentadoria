@@ -8,6 +8,12 @@ const calculators = [
     available: true,
   },
   {
+    name: "Aposentadoria Oficial (INSS)",
+    path: "/aposentadoria-oficial",
+    description: "Simule sua aposentadoria oficial pelo INSS.",
+    available: true,
+  },
+  {
     name: "Juros Compostos",
     path: "/juros-compostos",
     description: "Simule o crescimento de um investimento ao longo do tempo.",
