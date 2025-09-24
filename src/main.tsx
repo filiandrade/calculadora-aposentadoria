@@ -1,14 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
 import './index.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Layout from './Layout'
+import Home from './pages/Home'
+import Aposentadoria from './pages/Aposentadoria'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <div className="page-shell">
-      <main className="page-main">
-        <App />
-      </main>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/aposentadoria" element={<Aposentadoria />} />
+          {/* Outras calculadoras futuramente */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Layout>
       <footer className="footer">
         <div className="mx-auto max-w-5xl px-4 py-3 text-xs text-muted-foreground">
           © Minhas Calculadoras — v1.0 beta ·
@@ -23,6 +31,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </span>
         </div>
       </footer>
-    </div>
+    </BrowserRouter>
   </React.StrictMode>,
 )
