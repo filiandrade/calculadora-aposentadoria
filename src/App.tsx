@@ -276,10 +276,10 @@ export default function App() {
     setRetornoNominalAA(clamp(retornoNominalAA + deltaPP, -50, 100))
 
   return (
-  <div className="mx-auto max-w-4xl px-6 py-10 bg-white min-h-screen rounded-3xl shadow-xl">
-      <header className="mb-8 print:hidden">
+  <div className="mx-auto max-w-4xl px-6 py-10 bg-white min-h-screen rounded-3xl shadow-xl text-[15px]">
+  <header className="mb-8 print:hidden text-[15px]">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-light tracking-tight text-neutral-900">
+          <h1 className="text-2xl font-light tracking-tight text-neutral-900">
             Cálculo de Liberdade Financeira
           </h1>
           <div className="ml-auto flex gap-2">
@@ -318,7 +318,7 @@ export default function App() {
       </header>
 
       {/* Formulário */}
-  <section className="grid gap-6 md:grid-cols-2">
+  <section className="grid gap-4 md:grid-cols-2 text-[15px]">
         <MoneyInput id="renda" label="Quanto você ganha por mês?" value={rendaMensal} onChange={setRendaMensal}/>
         <MoneyInput id="inv" label="Quanto você já tem investido?" value={investido} onChange={setInvestido}/>
         <MoneyInput id="alvo" label="Com quanto de patrimônio quer se aposentar? (opcional)" value={alvoPatrimonio} onChange={setAlvoPatrimonio}/>
@@ -332,7 +332,7 @@ export default function App() {
       </section>
 
       {/* Toggle de método de saque */}
-      <section className="mt-6">
+  <section className="mt-6 text-[15px]">
         <div className="inline-flex rounded-full bg-neutral-100 p-1 shadow-sm">
           <button
             className={`px-4 py-1.5 text-base font-medium rounded-full transition ${metodoSaque==='fire4' ? 'bg-black text-white shadow' : 'text-neutral-700 hover:bg-neutral-200'}`}
@@ -353,33 +353,33 @@ export default function App() {
       </section>
 
       {/* Resultado (cards) */}
-      <section className="mt-8">
+  <section className="mt-8 text-[15px]">
         <div className={`rounded-2xl px-6 py-4 shadow-md ${atingiu ? "bg-emerald-50 text-emerald-900" : "bg-amber-50 text-amber-900"}`}>
-          <span className="text-lg font-medium">
+          <span className="text-base font-medium">
             {atingiu
               ? <>Parabéns! Você já atinge a meta com os investimentos atuais.</>
               : <>Ainda não atinge a meta: ajuste aportes, retorno ou prazo para chegar lá.</>}
           </span>
         </div>
 
-        <div className="mt-6 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-sm text-neutral-500 whitespace-nowrap">Aporte estimado por mês</div>
-            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(aporteMensal)}</div>
+        <div className="mt-6 grid gap-4 md:grid-cols-3 text-[15px]">
+          <div className="rounded-2xl bg-neutral-50 p-4 shadow-sm">
+            <div className="text-xs text-neutral-500 whitespace-nowrap">Aporte estimado por mês</div>
+            <div className="mt-2 text-base font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(aporteMensal)}</div>
             <div className="text-xs text-neutral-400 whitespace-nowrap">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
           </div>
 
-          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-sm text-neutral-500 whitespace-nowrap">Patrimônio ao aposentar</div>
-            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
+          <div className="rounded-2xl bg-neutral-50 p-4 shadow-sm">
+            <div className="text-xs text-neutral-500 whitespace-nowrap">Patrimônio ao aposentar</div>
+            <div className="mt-2 text-base font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
             <div className="text-xs text-neutral-400 whitespace-nowrap">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
           </div>
 
-          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
-            <div className="text-sm text-neutral-500 whitespace-nowrap">
+          <div className="rounded-2xl bg-neutral-50 p-4 shadow-sm">
+            <div className="text-xs text-neutral-500 whitespace-nowrap">
               Poderá gastar por mês ({metodoSaque === "gasto" ? "gasto desejado" : "regra 4%"})
             </div>
-            <div className="mt-2 text-xl font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(podeGastarMes))}</div>
+            <div className="mt-2 text-base font-semibold text-neutral-900 whitespace-nowrap">{fmtBRL(Math.round(podeGastarMes))}</div>
             <div className="text-xs text-neutral-400 whitespace-nowrap">
               {metodoSaque === "gasto"
                 ? "Saque real fixo igual ao gasto desejado"
@@ -388,29 +388,29 @@ export default function App() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-neutral-100">
-          <div className="text-sm text-neutral-500 whitespace-nowrap">
+        <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm border border-neutral-100 text-[15px]">
+          <div className="text-xs text-neutral-500 whitespace-nowrap">
             Meta considerada: {alvoPatrimonio > 0 ? "alvo informado" : "FIRE (gasto × 12 ÷ 4%)"}
           </div>
-          <div className={`text-base font-semibold whitespace-nowrap ${atingiu ? "text-emerald-700" : "text-amber-700"}`}>
+          <div className={`text-sm font-semibold whitespace-nowrap ${atingiu ? "text-emerald-700" : "text-amber-700"}`}>
             {atingiu ? `Você passou da meta em ${fmtBRL(diff)}.` : `Faltam ${fmtBRL(-diff)} para atingir a meta.`}
           </div>
         </div>
       </section>
 
       {/* Sensibilidade + Gráfico (com declínio pós-aposentadoria até idadeVida) */}
-      <section className="mt-10">
+  <section className="mt-10 text-[15px]">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-base text-neutral-700">
+          <span className="text-xs text-neutral-700">
             Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong> • horizonte até <strong>{idadeVida}</strong> anos
           </span>
           <div className="ml-auto flex gap-2">
-            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-base font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.max(-50, retornoNominalAA - 1))}>−1% retorno</button>
-            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-base font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.min(100, retornoNominalAA + 1))}>+1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.max(-50, retornoNominalAA - 1))}>−1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.min(100, retornoNominalAA + 1))}>+1% retorno</button>
           </div>
         </div>
 
-        <div className="h-80 w-full rounded-2xl bg-white p-4 shadow border border-neutral-100">
+  <div className="h-80 w-full rounded-2xl bg-white p-4 shadow border border-neutral-100 text-[15px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -425,7 +425,7 @@ export default function App() {
           </ResponsiveContainer>
         </div>
 
-        <p className="mt-3 text-sm text-neutral-400">
+  <p className="mt-3 text-xs text-neutral-400">
           No pós-aposentadoria, o saque é real e fixo: <strong>
             {metodoSaque === "gasto" ? "igual ao gasto desejado" : "4% ao ano do patrimônio ao aposentar"}
           </strong>. Se a rentabilidade real for menor que o ritmo de saque, o patrimônio decresce ao longo do tempo.
@@ -433,39 +433,39 @@ export default function App() {
       </section>
 
       {/* Explicação FIRE (simples) */}
-      <section className="mt-12 rounded-2xl bg-neutral-50 p-6 shadow-sm border border-neutral-100">
-        <h3 className="font-semibold mb-2 text-lg text-neutral-900">O que é FIRE?</h3>
-        <p className="text-base text-neutral-500 mb-2">
+      <section className="mt-12 rounded-2xl bg-neutral-50 p-6 shadow-sm border border-neutral-100 text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">O que é FIRE?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
           <strong>FIRE</strong> (Financial Independence, Retire Early) é um movimento global que busca a independência financeira e a possibilidade de se aposentar cedo, acumulando patrimônio suficiente para viver de renda.
         </p>
-        <p className="text-base text-neutral-500 mb-2">
+        <p className="text-xs text-neutral-500 mb-2">
           A regra prática mais conhecida é a dos <strong>4% ao ano</strong>: estima-se que, ao acumular um patrimônio capaz de sustentar saques anuais de até 4% (em valores reais), é possível manter o padrão de vida sem esgotar o capital ao longo do tempo.
         </p>
-        <p className="text-base text-neutral-500">
+        <p className="text-xs text-neutral-500">
           Exemplo: para um gasto anual de {fmtBRL(gastoMensal*12)}, o patrimônio alvo seria ≈ {fmtBRL((gastoMensal*12)/TAXA_RETIRADA)}.
         </p>
       </section>
 
-      <div className="mt-10 text-xs text-neutral-400 text-center print:block">
+  <div className="mt-10 text-xs text-neutral-400 text-center print:block">
         Projeções educativas. Não constitui aconselhamento financeiro, previdenciário ou jurídico.
       </div>
 
       {/* Seção explicativa adicional */}
-      <section className="mt-12 print:break-before-page">
-        <h3 className="font-semibold mb-2 text-lg text-neutral-900">Como funciona esta calculadora?</h3>
-        <p className="text-base text-neutral-500 mb-2">
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
           Esta calculadora de <strong>Liberdade Financeira</strong> utiliza o método FIRE (Financial Independence, Retire Early) para estimar o patrimônio necessário para viver de renda. Os cálculos consideram:
         </p>
-        <ul className="list-disc pl-6 text-neutral-500 text-base mb-2">
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
           <li>O valor que você já possui investido e os aportes mensais futuros.</li>
           <li>O retorno esperado dos investimentos, descontada a inflação (rentabilidade real).</li>
           <li>O tempo até a aposentadoria e o tempo de vida desejado.</li>
           <li>O método de saque: regra dos 4% ao ano (FIRE) ou um valor de gasto mensal desejado.</li>
         </ul>
-        <p className="text-base text-neutral-500 mb-2">
+        <p className="text-xs text-neutral-500 mb-2">
           O simulador projeta o crescimento do patrimônio até a aposentadoria e simula os saques durante a fase de usufruto, mostrando se o patrimônio é suficiente para sustentar o padrão de vida desejado.
         </p>
-        <p className="text-base text-neutral-500 mb-2">
+        <p className="text-xs text-neutral-500 mb-2">
           <strong>Importante:</strong> Os resultados são estimativas baseadas nos parâmetros informados e não constituem aconselhamento financeiro. Para simulações oficiais de aposentadoria, acesse o site do <a href="https://www.gov.br/inss/pt-br/direitos-e-deveres/aposentadorias" target="_blank" rel="noopener noreferrer" className="underline">Instituto Nacional de Seguridade Social (INSS)</a>.
         </p>
       </section>

@@ -6,6 +6,12 @@ import Layout from './Layout'
 import Home from './pages/Home'
 import LiberdadeFinanceira from './pages/LiberdadeFinanceira'
 import AposentadoriaOficial from './pages/AposentadoriaOficial'
+import JurosCompostos from './pages/JurosCompostos'
+import RentabilidadeReal from './pages/RentabilidadeReal'
+import FinanciamentoImobiliario from './pages/FinanciamentoImobiliario'
+import CltVsPj from './pages/CltVsPj'
+import Inss from './pages/Inss'
+import AluguelVsFinanciamento from './pages/AluguelVsFinanciamento'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -15,7 +21,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="/" element={<Home />} />
           <Route path="/liberdade-financeira" element={<LiberdadeFinanceira />} />
           <Route path="/aposentadoria-oficial" element={<AposentadoriaOficial />} />
-          {/* Outras calculadoras futuramente */}
+          <Route path="/juros-compostos" element={<JurosCompostos />} />
+          <Route path="/rentabilidade-real" element={<RentabilidadeReal />} />
+          <Route path="/financiamento-imobiliario" element={<FinanciamentoImobiliario />} />
+          <Route path="/clt-vs-pj" element={<CltVsPj />} />
+          <Route path="/inss" element={<Inss />} />
+          <Route path="/aluguel-vs-financiamento" element={<AluguelVsFinanciamento />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>

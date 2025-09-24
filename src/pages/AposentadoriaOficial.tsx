@@ -20,7 +20,7 @@ const diaAtual = hoje.getDate()
 export default function AposentadoriaOficial() {
   // Inputs
   const [sexo, setSexo] = useState<Sexo>("masculino")
-  const [dataNasc, setDataNasc] = useState("2016-01-01")
+  const [dataNasc, setDataNasc] = useState("2006-01-01")
   const [anosContrib, setAnosContrib] = useState(0)
   const [mesesContrib, setMesesContrib] = useState(0)
   const SALARIO_MINIMO = 1412
