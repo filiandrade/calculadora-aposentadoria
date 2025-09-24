@@ -30,7 +30,7 @@ function ShareButtons() {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-neutral-100 text-[15px]">
       <header className="w-full px-4 py-4 bg-white shadow-sm mb-6">
         <div className="mx-auto max-w-4xl flex items-center justify-between">
           <div className="flex items-center gap-2">

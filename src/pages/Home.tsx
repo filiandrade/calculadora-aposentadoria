@@ -53,7 +53,7 @@ const calculators = [
 
 export default function Home() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+  <div className="mx-auto max-w-3xl px-4 py-10 text-[15px]">
       <div className="mb-8 rounded-xl bg-neutral-50 border border-neutral-200 p-4 text-sm text-neutral-500 text-center">
         <strong>Aviso:</strong> Nenhum dado é coletado ou armazenado. Todas as simulações são feitas localmente no seu navegador. Para informações oficiais, consulte sempre os sites dos órgãos competentes.
       </div>

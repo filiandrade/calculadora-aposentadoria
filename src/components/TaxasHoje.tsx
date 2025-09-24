@@ -80,7 +80,7 @@ export function TaxasHoje({ hideRefresh = false }: { hideRefresh?: boolean }) {
 
   return (
     <Card>
-      <CardContent className="p-4 text-sm flex items-center gap-4">
+  <CardContent className="p-4 text-[15px] flex items-center gap-4">
         <div className="font-medium">
           Taxas de referência: {fonte === "bcb-page" ? "BCB (página Meta Selic)" : fonte === "sgs" ? "BCB (SGS)" : "fallback"}
         </div>

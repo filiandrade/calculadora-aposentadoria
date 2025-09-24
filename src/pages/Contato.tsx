@@ -1,6 +1,6 @@
 export default function Contato() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+  <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Contato</h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <p className="text-neutral-600 text-base mb-2">

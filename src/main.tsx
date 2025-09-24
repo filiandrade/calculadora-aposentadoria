@@ -38,7 +38,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           © Minhas Calculadoras — v1.0 beta ·{' '}
           <a href="/politica-privacidade.html" className="underline text-blue-700">Política de Privacidade</a>{' '}
           ·{' '}
-          <a href="/termos-de-uso.html" className="underline text-blue-700">Termos de Uso</a>
+          <a href="/termos-de-uso.html" className="underline text-blue-700">Termos de Uso</a>{' '}
+          ·{' '}
+          <a href="/contato" className="underline text-blue-700">Contato</a>
         </div>
       </footer>
     </BrowserRouter>
