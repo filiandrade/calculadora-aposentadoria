@@ -362,10 +362,14 @@ export default function App() {
       {/* Explicação FIRE (simples) */}
       <section className="mt-12 rounded-2xl bg-neutral-50 p-6 shadow-sm border border-neutral-100">
         <h3 className="font-semibold mb-2 text-lg text-neutral-900">O que é FIRE?</h3>
+        <p className="text-base text-neutral-500 mb-2">
+          <strong>FIRE</strong> (Financial Independence, Retire Early) é um movimento global que busca a independência financeira e a possibilidade de se aposentar cedo, acumulando patrimônio suficiente para viver de renda.
+        </p>
+        <p className="text-base text-neutral-500 mb-2">
+          A regra prática mais conhecida é a dos <strong>4% ao ano</strong>: estima-se que, ao acumular um patrimônio capaz de sustentar saques anuais de até 4% (em valores reais), é possível manter o padrão de vida sem esgotar o capital ao longo do tempo.
+        </p>
         <p className="text-base text-neutral-500">
-          <strong>FIRE</strong> (Financial Independence, Retire Early) é um método prático para estimar o patrimônio necessário
-          para viver de renda. A regra comum é retirar cerca de <strong>4% ao ano</strong> do patrimônio (em valores reais).
-          Assim, para um gasto anual de {fmtBRL(gastoMensal*12)}, o patrimônio alvo seria ≈ {fmtBRL((gastoMensal*12)/TAXA_RETIRADA)}.
+          Exemplo: para um gasto anual de {fmtBRL(gastoMensal*12)}, o patrimônio alvo seria ≈ {fmtBRL((gastoMensal*12)/TAXA_RETIRADA)}.
         </p>
       </section>
 
@@ -397,8 +401,6 @@ export default function App() {
       <div className="hidden print:block mt-8 text-center text-xs text-neutral-400">
         Acesse: <a href="https://minhascalculadoras.com" className="underline text-blue-700">https://minhascalculadoras.com</a>
       </div>
-// Adiciona utilitário de impressão para quebra de página
-// tailwind.config.js deve ter 'break-before' em 'safelist' se necessário
     </div>
   )
 }
