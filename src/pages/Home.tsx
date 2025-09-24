@@ -77,7 +77,7 @@ export default function Home() {
         ))}
       </div>
       <div className="mt-10 text-xs text-neutral-400 text-center">
-        Inspirado por Apple, Osklen &amp; Palantir Technologies.
+        Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado.
       </div>
     </div>
   )

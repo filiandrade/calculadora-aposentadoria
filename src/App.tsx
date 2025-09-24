@@ -113,19 +113,77 @@ const TAXA_RETIRADA = 0.04 // 4% a.a. (FIRE) — saque real anual fixo no pós-a
 type MetodoSaque = "fire4" | "gasto"
 
 /* ===== App ===== */
+
+type Perfil = 'jovem' | 'adulto' | 'terceiraIdade';
+
+const perfis = {
+  jovem: {
+    rendaMensal: 3500,
+    investido: 10000,
+    alvoPatrimonio: 500000,
+    percInvestRenda: 15,
+    idadeAtual: 24,
+    idadeApos: 60,
+    idadeVida: 90,
+    gastoMensal: 2500,
+    retornoNominalAA: 12,
+    inflacaoAA: 5,
+  },
+  adulto: {
+    rendaMensal: 12000,
+    investido: 120000,
+    alvoPatrimonio: 1000000,
+    percInvestRenda: 8,
+    idadeAtual: 38,
+    idadeApos: 65,
+    idadeVida: 95,
+    gastoMensal: 6000,
+    retornoNominalAA: 9,
+    inflacaoAA: 5,
+  },
+  terceiraIdade: {
+    rendaMensal: 8000,
+    investido: 400000,
+    alvoPatrimonio: 1200000,
+    percInvestRenda: 3,
+    idadeAtual: 62,
+    idadeApos: 68,
+    idadeVida: 92,
+    gastoMensal: 7000,
+    retornoNominalAA: 6,
+    inflacaoAA: 5,
+  },
+};
+
 export default function App() {
+  // Seleção de perfil
+  const [perfil, setPerfil] = useState<Perfil>('adulto');
   // Entradas (valores “de hoje”)
-  const [rendaMensal, setRendaMensal] = useState(15000)
-  const [investido, setInvestido] = useState(150000)
-  const [alvoPatrimonio, setAlvoPatrimonio] = useState(1000000) // opcional
-  const [percInvestRenda, setPercInvestRenda] = useState(5) // %
-  const [idadeAtual, setIdadeAtual] = useState(37)
-  const [idadeApos, setIdadeApos] = useState(65)
-  const [idadeVida, setIdadeVida] = useState(95) // horizonte final
-  const [gastoMensal, setGastoMensal] = useState(5000)
-  const [retornoNominalAA, setRetornoNominalAA] = useState(10) // %
-  const [inflacaoAA, setInflacaoAA] = useState(5) // %
-  const [metodoSaque, setMetodoSaque] = useState<MetodoSaque>("fire4") // <<< TOGGLE
+  const [rendaMensal, setRendaMensal] = useState(perfis[perfil].rendaMensal);
+  const [investido, setInvestido] = useState(perfis[perfil].investido);
+  const [alvoPatrimonio, setAlvoPatrimonio] = useState(perfis[perfil].alvoPatrimonio);
+  const [percInvestRenda, setPercInvestRenda] = useState(perfis[perfil].percInvestRenda);
+  const [idadeAtual, setIdadeAtual] = useState(perfis[perfil].idadeAtual);
+  const [idadeApos, setIdadeApos] = useState(perfis[perfil].idadeApos);
+  const [idadeVida, setIdadeVida] = useState(perfis[perfil].idadeVida);
+  const [gastoMensal, setGastoMensal] = useState(perfis[perfil].gastoMensal);
+  const [retornoNominalAA, setRetornoNominalAA] = useState(perfis[perfil].retornoNominalAA);
+  const [inflacaoAA, setInflacaoAA] = useState(perfis[perfil].inflacaoAA);
+  const [metodoSaque, setMetodoSaque] = useState<MetodoSaque>("fire4");
+
+  // Atualiza valores ao trocar perfil
+  useEffect(() => {
+    setRendaMensal(perfis[perfil].rendaMensal);
+    setInvestido(perfis[perfil].investido);
+    setAlvoPatrimonio(perfis[perfil].alvoPatrimonio);
+    setPercInvestRenda(perfis[perfil].percInvestRenda);
+    setIdadeAtual(perfis[perfil].idadeAtual);
+    setIdadeApos(perfis[perfil].idadeApos);
+    setIdadeVida(perfis[perfil].idadeVida);
+    setGastoMensal(perfis[perfil].gastoMensal);
+    setRetornoNominalAA(perfis[perfil].retornoNominalAA);
+    setInflacaoAA(perfis[perfil].inflacaoAA);
+  }, [perfil]);
 
   const anosAteApos = useMemo(()=> Math.max(0, idadeApos - idadeAtual), [idadeApos, idadeAtual])
   const aporteMensal = useMemo(()=> Math.round(rendaMensal * (percInvestRenda/100)), [rendaMensal, percInvestRenda])
@@ -238,6 +296,21 @@ export default function App() {
               Limpar
             </button>
           </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2 items-center">
+          <span className="text-sm text-neutral-500">Perfil:</span>
+          <button
+            className={`px-3 py-1 rounded-full text-sm font-medium border transition ${perfil==='jovem' ? 'bg-black text-white border-black' : 'bg-neutral-100 text-neutral-700 border-neutral-200 hover:bg-neutral-200'}`}
+            onClick={()=>setPerfil('jovem')}
+          >Jovem</button>
+          <button
+            className={`px-3 py-1 rounded-full text-sm font-medium border transition ${perfil==='adulto' ? 'bg-black text-white border-black' : 'bg-neutral-100 text-neutral-700 border-neutral-200 hover:bg-neutral-200'}`}
+            onClick={()=>setPerfil('adulto')}
+          >Adulto</button>
+          <button
+            className={`px-3 py-1 rounded-full text-sm font-medium border transition ${perfil==='terceiraIdade' ? 'bg-black text-white border-black' : 'bg-neutral-100 text-neutral-700 border-neutral-200 hover:bg-neutral-200'}`}
+            onClick={()=>setPerfil('terceiraIdade')}
+          >Terceira Idade</button>
         </div>
         <p className="mt-2 text-sm text-neutral-500 whitespace-nowrap">
           Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada = <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong> <span className="mx-2">·</span>Regra FIRE: <strong>4,0% a.a.</strong> ou “gasto mensal desejado”.
