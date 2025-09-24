@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 
 type Sexo = "masculino" | "feminino"
 
@@ -58,6 +59,15 @@ export default function AposentadoriaOficial() {
   if (salarioMedio > 0) {
     valorBeneficio = salarioMedio * 0.6 + salarioMedio * 0.02 * Math.max(0, totalAnosContrib - regras.tempoMin)
   }
+
+  // Dados para gráfico
+  const anosProjecao = 10
+  const chartData = Array.from({ length: anosProjecao + 1 }, (_, i) => ({
+    ano: i,
+    idade: +(idade + i).toFixed(1),
+    contrib: +(totalAnosContrib + i).toFixed(1),
+    pontos: +(idade + i + totalAnosContrib + i).toFixed(1),
+  }))
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
@@ -193,8 +203,7 @@ export default function AposentadoriaOficial() {
             // Data estimada para atingir idade mínima
             if (!dataNasc) return '-';
             const [ano, mes, dia] = dataNasc.split("-").map(Number);
-            let anosFaltam = Math.ceil(faltaIdade);
-            let data = new Date(ano + regras.idadeMin, mes - 1, dia);
+            const data = new Date(ano + regras.idadeMin, mes - 1, dia);
             if (faltaIdade <= 0 && faltaTempo <= 0) {
               return 'Você já pode solicitar o benefício.';
             } else {
@@ -202,6 +211,23 @@ export default function AposentadoriaOficial() {
             }
           })()}
         </div>
+      </div>
+
+      {/* Gráfico de evolução dos requisitos */}
+      <div className="rounded-2xl bg-white p-4 shadow border border-neutral-100 mb-6">
+        <h2 className="font-semibold text-base mb-2 text-neutral-900">Evolução dos requisitos</h2>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="ano" label={{ value: "Ano", position: "insideBottomRight", offset: -4 }} />
+            <YAxis />
+            <Tooltip formatter={(val, name) => [val, name]} labelFormatter={l => `Ano: ${l}`} />
+            <Line type="monotone" dataKey="idade" stroke="#222" strokeWidth={2.5} dot={false} name="Idade" />
+            <Line type="monotone" dataKey="contrib" stroke="#007bff" strokeWidth={2.5} dot={false} name="Tempo de Contribuição" />
+            <Line type="monotone" dataKey="pontos" stroke="#10b981" strokeWidth={2.5} dot={false} name="Pontos" />
+          </LineChart>
+        </ResponsiveContainer>
+        <div className="mt-2 text-xs text-neutral-500">Veja como sua idade, tempo de contribuição e pontos evoluem ao longo dos anos.</div>
       </div>
 
       <div className="text-xs text-neutral-400 text-center mt-6">
