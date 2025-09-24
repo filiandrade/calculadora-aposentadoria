@@ -218,37 +218,36 @@ export default function App() {
     setRetornoNominalAA(clamp(retornoNominalAA + deltaPP, -50, 100))
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      <header className="mb-4 print:hidden">
+  <div className="mx-auto max-w-4xl px-6 py-10 bg-white min-h-screen rounded-3xl shadow-xl">
+      <header className="mb-8 print:hidden">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">
-            Cálculo de Liberdade Financeira na Aposentadoria
+          <h1 className="text-3xl font-light tracking-tight text-neutral-900">
+            Cálculo de Liberdade Financeira
           </h1>
           <div className="ml-auto flex gap-2">
             <button
               onClick={imprimir}
-              className="rounded-md bg-[hsl(var(--primary))] px-4 py-2 text-white hover:brightness-110"
+              className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition"
             >
               Imprimir
             </button>
             <button
               onClick={limpar}
-              className="rounded-md bg-slate-200 px-4 py-2 hover:brightness-110"
+              className="rounded-full bg-neutral-100 px-5 py-2 text-neutral-700 font-medium shadow-sm hover:bg-neutral-200 transition"
             >
               Limpar
             </button>
           </div>
         </div>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-2 text-base text-neutral-500">
           Valores em <strong>R$ de hoje</strong>. Rentabilidade real usada =
-          {" "}
-          <strong>{retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
-          {" · "}Regra FIRE (retirada): <strong>4,0% a.a.</strong> ou “gasto mensal desejado”, conforme alternador abaixo.
+          <strong> {retornoNominalAA}% − {inflacaoAA}% = {(rentRealAA*100).toFixed(1)}% a.a.</strong>
+          <span className="mx-2">·</span>Regra FIRE: <strong>4,0% a.a.</strong> ou “gasto mensal desejado”.
         </p>
       </header>
 
       {/* Formulário */}
-      <section className="grid gap-4 md:grid-cols-2">
+  <section className="grid gap-6 md:grid-cols-2">
         <MoneyInput id="renda" label="Quanto você ganha por mês?" value={rendaMensal} onChange={setRendaMensal}/>
         <MoneyInput id="inv" label="Quanto você já tem investido?" value={investido} onChange={setInvestido}/>
         <MoneyInput id="alvo" label="Com quanto de patrimônio quer se aposentar? (opcional)" value={alvoPatrimonio} onChange={setAlvoPatrimonio}/>
@@ -262,54 +261,55 @@ export default function App() {
       </section>
 
       {/* Toggle de método de saque */}
-      <section className="mt-4">
-        <div className="inline-flex rounded-md border bg-white p-1">
+      <section className="mt-6">
+        <div className="inline-flex rounded-full bg-neutral-100 p-1 shadow-sm">
           <button
-            className={`px-3 py-1 text-sm font-medium rounded ${metodoSaque==='fire4' ? 'bg-[hsl(var(--primary))] text-white' : 'text-slate-700'}`}
+            className={`px-4 py-1.5 text-base font-medium rounded-full transition ${metodoSaque==='fire4' ? 'bg-black text-white shadow' : 'text-neutral-700 hover:bg-neutral-200'}`}
             onClick={()=>setMetodoSaque('fire4')}
           >
             Saque 4% a.a. (FIRE)
           </button>
           <button
-            className={`ml-1 px-3 py-1 text-sm font-medium rounded ${metodoSaque==='gasto' ? 'bg-[hsl(var(--primary))] text-white' : 'text-slate-700'}`}
+            className={`ml-1 px-4 py-1.5 text-base font-medium rounded-full transition ${metodoSaque==='gasto' ? 'bg-black text-white shadow' : 'text-neutral-700 hover:bg-neutral-200'}`}
             onClick={()=>setMetodoSaque('gasto')}
           >
             Gasto mensal desejado
           </button>
         </div>
-        <p className="mt-1 text-xs text-slate-600">
-          O método selecionado vale apenas para a fase pós-aposentadoria. A acumulação antes disso não muda.
+        <p className="mt-2 text-sm text-neutral-400">
+          O método selecionado vale apenas para a fase pós-aposentadoria.
         </p>
       </section>
 
       {/* Resultado (cards) */}
-      <section className="mt-6">
-        <div className={`rounded-md border px-4 py-3 ${atingiu ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-amber-50 border-amber-200 text-amber-800"}`}>
-          {atingiu
-            ? <>Parabéns! Você já atinge a meta com os investimentos atuais.</>
-            : <>Ainda não atinge a meta: ajuste aportes/retorno ou prazo para chegar lá.</>}
+      <section className="mt-8">
+        <div className={`rounded-2xl px-6 py-4 shadow-md ${atingiu ? "bg-emerald-50 text-emerald-900" : "bg-amber-50 text-amber-900"}`}>
+          <span className="text-lg font-medium">
+            {atingiu
+              ? <>Parabéns! Você já atinge a meta com os investimentos atuais.</>
+              : <>Ainda não atinge a meta: ajuste aportes, retorno ou prazo para chegar lá.</>}
+          </span>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border p-4">
-            <div className="text-sm text-slate-600">Aporte estimado por mês</div>
-            <div className="mt-2 text-2xl font-semibold">{fmtBRL(aporteMensal)}</div>
-            <div className="text-xs text-slate-500">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
+            <div className="text-base text-neutral-500">Aporte estimado por mês</div>
+            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(aporteMensal)}</div>
+            <div className="text-xs text-neutral-400">(R$ {rendaMensal.toLocaleString("pt-BR")} × {percInvestRenda}%)</div>
           </div>
 
-          <div className="rounded-xl border p-4">
-            <div className="text-sm text-slate-600">Patrimônio ao aposentar</div>
-            <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
-            <div className="text-xs text-slate-500">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
+          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
+            <div className="text-base text-neutral-500">Patrimônio ao aposentar</div>
+            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(Math.round(saldoNaAposentadoria))}</div>
+            <div className="text-xs text-neutral-400">{anosAteApos} anos de acumulação a {(rentRealAA*100).toFixed(1)}% a.a. real</div>
           </div>
 
-          <div className="rounded-xl border p-4">
-            <div className="text-sm text-slate-600">
-              Poderá gastar por mês ({metodoSaque === "gasto" ? "gasto desejado" : "regra 4%"}
-              )
+          <div className="rounded-2xl bg-neutral-50 p-6 shadow-sm">
+            <div className="text-base text-neutral-500">
+              Poderá gastar por mês ({metodoSaque === "gasto" ? "gasto desejado" : "regra 4%"})
             </div>
-            <div className="mt-2 text-2xl font-semibold">{fmtBRL(Math.round(podeGastarMes))}</div>
-            <div className="text-xs text-slate-500">
+            <div className="mt-2 text-2xl font-semibold text-neutral-900">{fmtBRL(Math.round(podeGastarMes))}</div>
+            <div className="text-xs text-neutral-400">
               {metodoSaque === "gasto"
                 ? "Saque real fixo igual ao gasto desejado"
                 : "Saque real fixo de 4% a.a. do patrimônio (≈ 0,333% ao mês)"}
@@ -317,8 +317,8 @@ export default function App() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-xl border p-4">
-          <div className="text-sm text-slate-600">
+        <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm border border-neutral-100">
+          <div className="text-base text-neutral-500">
             Meta considerada: {alvoPatrimonio > 0 ? "alvo informado" : "FIRE (gasto × 12 ÷ 4%)"}
           </div>
           <div className={`text-lg font-semibold ${atingiu ? "text-emerald-700" : "text-amber-700"}`}>
@@ -328,18 +328,18 @@ export default function App() {
       </section>
 
       {/* Sensibilidade + Gráfico (com declínio pós-aposentadoria até idadeVida) */}
-      <section className="mt-6">
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-slate-700">
+      <section className="mt-10">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="text-base text-neutral-700">
             Evolução do patrimônio (R$ de hoje) — rentabilidade real: <strong>{(rentRealAA*100).toFixed(1)}% a.a.</strong> • horizonte até <strong>{idadeVida}</strong> anos
           </span>
           <div className="ml-auto flex gap-2">
-            <button className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium text-white shadow" style={{backgroundColor:"hsl(var(--primary))"}} onClick={()=>setRetornoNominalAA(Math.max(-50, retornoNominalAA - 1))}>−1% retorno</button>
-            <button className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium text-white shadow" style={{backgroundColor:"hsl(var(--primary))"}} onClick={()=>setRetornoNominalAA(Math.min(100, retornoNominalAA + 1))}>+1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-base font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.max(-50, retornoNominalAA - 1))}>−1% retorno</button>
+            <button className="inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-base font-medium text-white shadow-sm bg-black/80 hover:bg-black transition" onClick={()=>setRetornoNominalAA(Math.min(100, retornoNominalAA + 1))}>+1% retorno</button>
           </div>
         </div>
 
-        <div className="h-72 w-full rounded-xl border bg-white p-2">
+        <div className="h-80 w-full rounded-2xl bg-white p-4 shadow border border-neutral-100">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -349,12 +349,12 @@ export default function App() {
                 formatter={(val)=>[fmtBRL(Number(val)), "Saldo"]}
                 labelFormatter={(l)=>`Idade: ${l} anos`}
               />
-              <Line type="monotone" dataKey="saldo" stroke="#165788" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="saldo" stroke="#111" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-3 text-sm text-neutral-400">
           No pós-aposentadoria, o saque é real e fixo: <strong>
             {metodoSaque === "gasto" ? "igual ao gasto desejado" : "4% ao ano do patrimônio ao aposentar"}
           </strong>. Se a rentabilidade real for menor que o ritmo de saque, o patrimônio decresce ao longo do tempo.
@@ -362,16 +362,16 @@ export default function App() {
       </section>
 
       {/* Explicação FIRE (simples) */}
-      <section className="mt-8 rounded-xl border p-4 bg-slate-50">
-        <h3 className="font-semibold mb-1">O que é FIRE?</h3>
-        <p className="text-sm text-slate-600">
+      <section className="mt-12 rounded-2xl bg-neutral-50 p-6 shadow-sm border border-neutral-100">
+        <h3 className="font-semibold mb-2 text-lg text-neutral-900">O que é FIRE?</h3>
+        <p className="text-base text-neutral-500">
           <strong>FIRE</strong> (Financial Independence, Retire Early) é um método prático para estimar o patrimônio necessário
           para viver de renda. A regra comum é retirar cerca de <strong>4% ao ano</strong> do patrimônio (em valores reais).
           Assim, para um gasto anual de {fmtBRL(gastoMensal*12)}, o patrimônio alvo seria ≈ {fmtBRL((gastoMensal*12)/TAXA_RETIRADA)}.
         </p>
       </section>
 
-      <div className="mt-6 text-xs text-slate-500 print:block">
+      <div className="mt-10 text-xs text-neutral-400 text-center print:block">
         Projeções educativas. Não constitui aconselhamento financeiro, previdenciário ou jurídico.
       </div>
     </div>
