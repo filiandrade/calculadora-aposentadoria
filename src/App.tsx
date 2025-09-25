@@ -276,29 +276,33 @@ export default function App() {
     setRetornoNominalAA(clamp(retornoNominalAA + deltaPP, -50, 100))
 
   return (
-  <div className="mx-auto max-w-4xl px-6 py-10 bg-white min-h-screen rounded-3xl shadow-xl text-[15px]">
-  <header className="mb-8 print:hidden text-[15px]">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-light tracking-tight text-neutral-900">
-            Cálculo de Liberdade Financeira
-          </h1>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={imprimir}
-              className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition"
-            >
-              Imprimir
-            </button>
-            <button
-              onClick={limpar}
-              className="rounded-full bg-neutral-100 px-5 py-2 text-neutral-700 font-medium shadow-sm hover:bg-neutral-200 transition"
-            >
-              Limpar
-            </button>
-          </div>
+    <div className="mx-auto max-w-4xl px-6 py-10 text-[15px]">
+      <div className="mb-8 print:hidden">
+        <div className="flex items-center gap-3">
+          <span className="w-7 h-7 bg-black rounded-full text-white flex items-center justify-center font-bold text-xl">Σ</span>
+          <h1 className="text-2xl font-light tracking-tight text-neutral-900">Cálculo de Liberdade Financeira</h1>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2 items-center">
-          <span className="text-sm text-neutral-500">Perfil:</span>
+      </div>
+      <div className="bg-white rounded-3xl shadow-xl p-6">
+        <header className="mb-8 print:hidden text-[15px]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="ml-auto flex gap-2">
+              <button
+                onClick={imprimir}
+                className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition"
+              >
+                Imprimir
+              </button>
+              <button
+                onClick={limpar}
+                className="rounded-full bg-neutral-100 px-5 py-2 text-neutral-700 font-medium shadow-sm hover:bg-neutral-200 transition"
+              >
+                Limpar
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2 items-center">
+            <span className="text-sm text-neutral-500">Perfil:</span>
           <button
             className={`px-3 py-1 rounded-full text-sm font-medium border transition ${perfil==='jovem' ? 'bg-black text-white border-black' : 'bg-neutral-100 text-neutral-700 border-neutral-200 hover:bg-neutral-200'}`}
             onClick={()=>setPerfil('jovem')}
@@ -473,6 +477,7 @@ export default function App() {
       {/* Endereço do site para impressão */}
       <div className="hidden print:block mt-8 text-center text-xs text-neutral-400">
         Acesse: <a href="https://minhascalculadoras.com" className="underline text-blue-700">https://minhascalculadoras.com</a>
+      </div>
       </div>
     </div>
   )

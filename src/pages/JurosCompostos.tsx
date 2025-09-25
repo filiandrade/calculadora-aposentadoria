@@ -76,7 +76,7 @@ export default function JurosCompostos() {
             <button type="button" className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition" onClick={imprimir}>
               Imprimir
             </button>
-            <button type="submit" className="rounded-full bg-blue-600 px-5 py-2 text-white font-medium shadow-sm hover:bg-blue-700 transition">
+              <button type="submit" className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition">
               Calcular
             </button>
           </div>

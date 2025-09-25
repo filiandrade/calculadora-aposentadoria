@@ -63,7 +63,7 @@ export default function RentabilidadeReal() {
           <div className="flex justify-end gap-2 mt-4">
             <button type="button" className="rounded-full bg-neutral-100 px-5 py-2 text-neutral-700 font-medium border border-neutral-200 shadow-sm hover:bg-neutral-200 transition" onClick={limpar}>Limpar</button>
             <button type="button" className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition" onClick={imprimir}>Imprimir</button>
-            <button type="submit" className="rounded-full bg-blue-600 px-5 py-2 text-white font-medium shadow-sm hover:bg-blue-700 transition">Calcular</button>
+            <button type="submit" className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition">Calcular</button>
           </div>
         </form>
         {resultado && (
