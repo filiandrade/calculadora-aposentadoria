@@ -65,9 +65,9 @@ export default function Home() {
           <div key={calc.path} className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold text-neutral-800">{calc.name}</span>
-              {calc.beta && (
-                <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold">BETA</span>
-              )}
+                {calc.beta && (
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold">{/* Removido selo BETA */}</span>
+                )}
             </div>
             <div className="text-sm text-neutral-500 mb-2">{calc.description}</div>
             <Link to={calc.path} className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>

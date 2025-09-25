@@ -33,8 +33,11 @@ export default function ComparadorSalarios() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
-      <h1 className="text-2xl font-light mb-4 text-neutral-900 flex items-center gap-3">
-        <img src="/logo-simbolo-sigma.png" alt="Logo Minhas Calculadoras" className="w-10 h-10 rounded-2xl shadow-lg border border-neutral-200 bg-white/40" style={{boxShadow: '0 4px 16px 0 #0002'}} />
+      <h1 className="text-2xl font-light mb-4 text-neutral-900 flex items-center gap-2">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block align-middle">
+          <rect x="4" y="14" width="8" height="8" rx="2" fill="#2563eb" />
+          <rect x="16" y="8" width="8" height="14" rx="2" fill="#10b981" />
+        </svg>
         Comparador de Salários
       </h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
