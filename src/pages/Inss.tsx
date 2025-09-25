@@ -97,6 +97,22 @@ export default function Inss() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui cálculo oficial nem aconselhamento previdenciário.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora de <strong>INSS</strong> estima o valor da contribuição mensal e o total acumulado ao longo dos anos, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Renda mensal informada.</li>
+          <li>Categoria de contribuição (CLT, MEI ou Autônomo).</li>
+          <li>Prazo total em anos.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          O gráfico mostra a evolução do total contribuído ao longo do tempo. Não constitui cálculo oficial do INSS. Consulte especialistas para simulações detalhadas.
+        </p>
+      </section>
     </div>
   )
 }

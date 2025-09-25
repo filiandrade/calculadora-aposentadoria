@@ -90,6 +90,22 @@ export default function CltVsPj() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento trabalhista ou fiscal.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora compara o salário líquido entre <strong>CLT</strong> e <strong>PJ</strong>, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Salário bruto e benefícios CLT.</li>
+          <li>Salário bruto e custos PJ.</li>
+          <li>Descontos simplificados de INSS e IR para CLT.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          O gráfico mostra o comparativo líquido entre os regimes. Não considera todos os encargos, benefícios ou impostos. Consulte especialistas para análise detalhada.
+        </p>
+      </section>
     </div>
   )
 }

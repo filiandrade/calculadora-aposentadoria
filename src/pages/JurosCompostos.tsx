@@ -9,7 +9,7 @@ export default function JurosCompostos() {
   const [taxa, setTaxa] = useState(10)
   const [anos, setAnos] = useState(20)
   const [resultado, setResultado] = useState<null | { total: number, investido: number, juros: number }>(null)
-  const [grafico, setGrafico] = useState<any[]>([])
+  const [grafico, setGrafico] = useState<{ mes: number, saldo: number, investido: number, juros: number }[]>([])
 
   function calcular() {
     const meses = anos * 12
@@ -99,6 +99,23 @@ export default function JurosCompostos() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora de <strong>Juros Compostos</strong> simula o crescimento de um investimento ao longo do tempo, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Valor inicial investido.</li>
+          <li>Aportes mensais recorrentes.</li>
+          <li>Taxa de juros anual composta.</li>
+          <li>Prazo total em anos.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          Os resultados mostram o total acumulado, o valor investido e os juros ganhos. Ideal para visualizar o poder dos juros compostos em investimentos de longo prazo.
+        </p>
+      </section>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { InputAffix } from "../components/InputAffix"
 
@@ -10,7 +11,6 @@ export default function AluguelVsFinanciamento() {
   const [resultado, setResultado] = useState<null | { totalAluguel: number, totalFinanciamento: number }>(null)
 
   function calcular() {
-    // Cálculo simplificado: financiamento SAC, sem amortização extra
     const valorFinanciado = valorImovel - entrada
     const n = prazo * 12
     const i = taxaJuros / 100 / 12
@@ -18,6 +18,19 @@ export default function AluguelVsFinanciamento() {
     const totalFinanciamento = parcela * n + entrada
     const totalAluguel = aluguel * n
     setResultado({ totalAluguel, totalFinanciamento })
+  }
+
+  function limpar() {
+    setValorImovel(400000)
+    setEntrada(80000)
+    setTaxaJuros(9)
+    setPrazo(30)
+    setAluguel(2000)
+    setResultado(null)
+  }
+
+  function imprimir() {
+    window.print()
   }
 
   return (
@@ -48,8 +61,8 @@ export default function AluguelVsFinanciamento() {
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <button type="button" className="btn btn-outline">Limpar</button>
-            <button type="button" className="btn btn-outline">Imprimir</button>
+            <button type="button" className="btn btn-outline" onClick={limpar}>Limpar</button>
+            <button type="button" className="btn btn-outline" onClick={imprimir}>Imprimir</button>
             <button type="submit" className="btn btn-primary">Calcular</button>
           </div>
         </form>
@@ -65,6 +78,23 @@ export default function AluguelVsFinanciamento() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro ou imobiliário.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora compara o custo total de alugar um imóvel versus financiar, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Valor do imóvel, entrada e prazo do financiamento.</li>
+          <li>Taxa de juros anual aplicada ao financiamento.</li>
+          <li>Valor do aluguel mensal ao longo do mesmo período.</li>
+          <li>Não considera valorização do imóvel, impostos, taxas extras ou manutenção.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          Os resultados são estimativas simplificadas para ajudar na decisão entre alugar ou financiar. Consulte especialistas para análise detalhada.
+        </p>
+      </section>
     </div>
   )
 }

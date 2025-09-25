@@ -104,6 +104,22 @@ export default function FinanciamentoImobiliario() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora de <strong>Financiamento Imobiliário</strong> estima o valor das parcelas, total pago e juros ao longo do tempo, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Valor do imóvel e entrada inicial.</li>
+          <li>Taxa de juros anual aplicada ao financiamento.</li>
+          <li>Prazo total em anos.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          O gráfico mostra a evolução do saldo devedor e do total pago mês a mês. Não considera seguros, taxas extras ou amortizações antecipadas. Consulte especialistas para análise detalhada.
+        </p>
+      </section>
     </div>
   )
 }

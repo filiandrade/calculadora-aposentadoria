@@ -87,6 +87,22 @@ export default function RentabilidadeReal() {
         <strong>Disclaimer:</strong> Esta é uma simulação simplificada, não constitui aconselhamento financeiro.<br/>
         Versão BETA — sujeita a ajustes.
       </div>
+
+      {/* Seção explicativa adicional */}
+      <section className="mt-12 print:break-before-page text-[15px]">
+        <h3 className="font-semibold mb-2 text-base text-neutral-900">Como funciona esta calculadora?</h3>
+        <p className="text-xs text-neutral-500 mb-2">
+          Esta calculadora de <strong>Rentabilidade Real</strong> mostra o rendimento de um investimento descontando a inflação, considerando:
+        </p>
+        <ul className="list-disc pl-6 text-neutral-500 text-xs mb-2">
+          <li>Rendimento bruto anual informado.</li>
+          <li>Inflação anual estimada.</li>
+          <li>Prazo total em anos.</li>
+        </ul>
+        <p className="text-xs text-neutral-500">
+          O gráfico mostra a evolução do valor investido ao longo do tempo, tanto em valores brutos quanto reais (descontada a inflação). Ideal para comparar investimentos em diferentes cenários econômicos.
+        </p>
+      </section>
     </div>
   )
 }
