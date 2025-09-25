@@ -35,7 +35,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto max-w-4xl flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-3 select-none" style={{textDecoration: 'none'}}>
-              <span className="rounded-full bg-black text-white px-4 py-2 text-2xl font-bold tracking-tight shadow-lg border border-neutral-200" style={{letterSpacing: '-0.04em', boxShadow: '0 2px 12px 0 #0001'}}>MC</span>
+              <img src="/logo-simbolos-apple.svg" alt="Logo Minhas Calculadoras" className="w-12 h-12 rounded-2xl shadow-lg border border-neutral-200 bg-white/40" style={{boxShadow: '0 4px 16px 0 #0002'}} />
               <span className="text-2xl font-light tracking-tight text-neutral-900" style={{letterSpacing: '-0.04em', fontFamily: 'Inter, Segoe UI, Arial, sans-serif', fontWeight: 300}}>Minhas Calculadoras</span>
             </Link>
             <ShareButtons />
