@@ -48,7 +48,13 @@ export default function FinanciamentoImobiliario() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
-      <h1 className="text-2xl font-light mb-4 text-neutral-900">Financiamento Imobiliário <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
+      <h1 className="text-2xl font-light mb-4 text-neutral-900 flex items-center gap-2">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block align-middle">
+          <rect x="6" y="12" width="16" height="10" rx="2" fill="#f6f7f9" stroke="#2563eb" strokeWidth="2" />
+          <path d="M6 12L14 6L22 12" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Financiamento Imobiliário
+      </h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-2 gap-4">

@@ -42,7 +42,13 @@ export default function JurosCompostos() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
-      <h1 className="text-2xl font-light mb-4 text-neutral-900">Juros Compostos <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
+      <h1 className="text-2xl font-light mb-4 text-neutral-900 flex items-center gap-2">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block align-middle">
+          <circle cx="14" cy="14" r="13" stroke="#2563eb" strokeWidth="2" fill="#f6f7f9" />
+          <path d="M8 18L12 12L16 16L20 10" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Juros Compostos
+      </h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-2 gap-4">
@@ -64,30 +70,50 @@ export default function JurosCompostos() {
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <button type="button" className="btn btn-outline" onClick={limpar}>Limpar</button>
-            <button type="button" className="btn btn-outline" onClick={imprimir}>Imprimir</button>
-            <button type="submit" className="btn btn-primary">Calcular</button>
+            <button type="button" className="rounded-full bg-neutral-100 px-5 py-2 text-neutral-700 font-medium border border-neutral-200 shadow-sm hover:bg-neutral-200 transition" onClick={limpar}>
+              Limpar
+            </button>
+            <button type="button" className="rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition" onClick={imprimir}>
+              Imprimir
+            </button>
+            <button type="submit" className="rounded-full bg-blue-600 px-5 py-2 text-white font-medium shadow-sm hover:bg-blue-700 transition">
+              Calcular
+            </button>
           </div>
         </form>
         {resultado && (
           <>
-            <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-base">
-              <div><strong>Total acumulado:</strong> R$ {resultado.total.toLocaleString('pt-BR')}</div>
-              <div><strong>Total investido:</strong> R$ {resultado.investido.toLocaleString('pt-BR')}</div>
-              <div><strong>Juros ganhos:</strong> R$ {resultado.juros.toLocaleString('pt-BR')}</div>
+            <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-base grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-xs font-semibold text-neutral-500 mb-1">Valor total final</span>
+                <span className="bg-red-700 text-white rounded-lg px-4 py-2 text-xl font-bold tracking-tight" style={{letterSpacing: '-0.04em'}}>
+                  R$ {resultado.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-xs font-semibold text-neutral-500 mb-1">Valor total investido</span>
+                <span className="bg-white text-red-700 border border-red-700 rounded-lg px-4 py-2 text-xl font-bold tracking-tight">
+                  R$ {resultado.investido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-xs font-semibold text-neutral-500 mb-1">Total em juros</span>
+                <span className="bg-white text-red-700 border border-red-700 rounded-lg px-4 py-2 text-xl font-bold tracking-tight">
+                  R$ {resultado.juros.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2 text-neutral-800 text-sm">Evolução mês a mês</h3>
-              <ResponsiveContainer width="100%" height={260}>
+            <div className="mt-8">
+              <h3 className="font-semibold mb-2 text-neutral-800 text-sm">Gráfico:</h3>
+              <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={grafico} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" tickFormatter={m => `${m}`} label={{ value: "Meses", position: "insideBottomRight", offset: -4 }} />
-                  <YAxis tickFormatter={v => `R$ ${Math.round(v/1000)}k`} />
-                  <Tooltip formatter={(val: number, name: string) => [`R$ ${val.toLocaleString('pt-BR')}`, name === 'saldo' ? 'Saldo acumulado' : name === 'investido' ? 'Total investido' : 'Juros ganhos']} labelFormatter={l => `Mês: ${l}`} />
-                  <Legend verticalAlign="top" height={36} formatter={v => v === 'saldo' ? 'Saldo acumulado' : v === 'investido' ? 'Total investido' : 'Juros ganhos'} />
-                  <Line type="monotone" dataKey="saldo" stroke="#2563eb" strokeWidth={2.5} dot={false} name="Saldo acumulado" />
-                  <Line type="monotone" dataKey="investido" stroke="#a3a3a3" strokeWidth={2.5} dot={false} name="Total investido" />
-                  <Line type="monotone" dataKey="juros" stroke="#10b981" strokeWidth={2.5} dot={false} name="Juros ganhos" />
+                  <XAxis dataKey="mes" tickFormatter={m => `${m}`} label={{ value: "", position: "insideBottomRight", offset: -4 }} />
+                  <YAxis tickFormatter={v => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                  <Tooltip formatter={(val: number, name: string) => [`R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, name === 'juros' ? 'Total em juros' : 'Valor Investido']} labelFormatter={l => `Mês: ${l}`} />
+                  <Legend verticalAlign="top" height={36} formatter={v => v === 'juros' ? 'Total em juros' : 'Valor Investido'} />
+                  <Line type="monotone" dataKey="juros" stroke="#7f1d1d" strokeWidth={2.5} dot={true} name="Total em juros" />
+                  <Line type="monotone" dataKey="investido" stroke="#111" strokeWidth={2.5} dot={true} name="Valor Investido" />
                 </LineChart>
               </ResponsiveContainer>
               <div className="mt-2 text-xs text-neutral-500">* Gráfico ilustrativo. Valores aproximados, sem impostos ou taxas.</div>
