@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 function HomeButton() {
   const location = useLocation();
@@ -28,7 +28,11 @@ function ShareButtons() {
   );
 }
 
+import { useLocation } from "react-router-dom";
+
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   return (
     <div className="min-h-screen bg-neutral-100 text-[15px]">
       <header className="w-full px-4 py-4 bg-white shadow-sm mb-6">
@@ -41,9 +45,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <ShareButtons />
           </div>
           <div className="flex items-center gap-2">
-            <HomeButton />
+            {!isHome && <HomeButton />}
           </div>
-          <span className="hidden md:block text-xs text-neutral-400 font-mono tracking-wide" style={{letterSpacing: '0.08em'}}>Simule, compare e planeje seu futuro financeiro.</span>
+          {isHome && (
+            <span className="hidden md:block text-xs text-neutral-400 font-mono tracking-wide" style={{letterSpacing: '0.08em'}}>Simule, compare e planeje seu futuro financeiro.</span>
+          )}
         </div>
       </header>
       <main>{children}</main>

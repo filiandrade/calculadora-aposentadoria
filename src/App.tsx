@@ -276,7 +276,7 @@ export default function App() {
     setRetornoNominalAA(clamp(retornoNominalAA + deltaPP, -50, 100))
 
   return (
-  <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
+  <div className="mx-auto max-w-3xl px-4 py-10 text-[15px]">
       <div className="mb-8 print:hidden">
         <div className="flex items-center gap-3">
           <span className="w-6 h-6 bg-black rounded-full text-white flex items-center justify-center font-bold text-lg">Σ</span>
