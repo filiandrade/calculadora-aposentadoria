@@ -65,9 +65,7 @@ export default function Home() {
           <div key={calc.path} className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold text-neutral-800">{calc.name}</span>
-                {calc.beta && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold">{/* Removido selo BETA */}</span>
-                )}
+                {/* Selo BETA removido e fundo amarelo retirado */}
             </div>
             <div className="text-sm text-neutral-500 mb-2">{calc.description}</div>
             <Link to={calc.path} className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
@@ -77,22 +75,20 @@ export default function Home() {
 
       {/* Seção Comparadores */}
       <h2 className="text-xl font-semibold mb-4 text-neutral-900">Comparadores</h2>
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100 opacity-60">
+      <div className="grid gap-6 md:grid-cols-2 mb-12">
+        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold text-neutral-800">Comparador de Cartões de Crédito</span>
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-xs text-blue-700 font-bold">Em breve</span>
           </div>
           <div className="text-sm text-neutral-500 mb-2">Compare taxas, benefícios e custos dos principais cartões do mercado.</div>
-          <button disabled className="inline-block mt-auto rounded-full bg-neutral-200 px-4 py-2 text-neutral-500 text-sm font-medium shadow-sm cursor-not-allowed">Acessar</button>
+          <Link to="/comparador-cartoes" className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
         </div>
-        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100 opacity-60">
+        <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold text-neutral-800">Comparador de Renda Fixa</span>
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-green-100 text-xs text-green-700 font-bold">Em breve</span>
           </div>
           <div className="text-sm text-neutral-500 mb-2">Compare CDB, Tesouro, LCIs, LCAs e outros investimentos de renda fixa.</div>
-          <button disabled className="inline-block mt-auto rounded-full bg-neutral-200 px-4 py-2 text-neutral-500 text-sm font-medium shadow-sm cursor-not-allowed">Acessar</button>
+          <Link to="/comparador-renda-fixa" className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
         </div>
       </div>
 

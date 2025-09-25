@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts"
 
 type Sexo = "masculino" | "feminino"
 
@@ -70,7 +70,7 @@ export default function AposentadoriaOficial() {
   }))
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Aposentadoria Oficial (INSS)</h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <div className="mb-4 text-[15px] text-neutral-600">
@@ -136,7 +136,7 @@ export default function AposentadoriaOficial() {
       </div>
 
       {/* Resultados */}
-      <div className="rounded-2xl bg-neutral-50 shadow p-6 border border-neutral-100 mb-6 text-[15px]">
+  <div className="rounded-2xl bg-neutral-50 shadow p-6 border border-neutral-100 mb-6">
         <h2 className="font-semibold text-base mb-2 text-neutral-900">Resultados</h2>
         <div className="text-xs text-neutral-700 mb-2">Idade atual: <strong>{idade || "-"}</strong> anos</div>
         <div className="text-xs text-neutral-700 mb-2">Tempo total de contribuição: <strong>{Math.floor(totalAnosContrib)} anos e {mesesParaAnosMeses(totalMesesContrib).meses} meses</strong></div>
@@ -216,18 +216,19 @@ export default function AposentadoriaOficial() {
       {/* Gráfico de evolução dos requisitos */}
       <div className="rounded-2xl bg-white p-4 shadow border border-neutral-100 mb-6">
         <h2 className="font-semibold text-base mb-2 text-neutral-900">Evolução dos requisitos</h2>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 8 }}>
+        <ResponsiveContainer width="100%" height={260}>
+          <LineChart data={chartData} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="ano" label={{ value: "Ano", position: "insideBottomRight", offset: -4 }} />
-            <YAxis />
-            <Tooltip formatter={(val, name) => [val, name]} labelFormatter={l => `Ano: ${l}`} />
-            <Line type="monotone" dataKey="idade" stroke="#222" strokeWidth={2.5} dot={false} name="Idade" />
-            <Line type="monotone" dataKey="contrib" stroke="#007bff" strokeWidth={2.5} dot={false} name="Tempo de Contribuição" />
-            <Line type="monotone" dataKey="pontos" stroke="#10b981" strokeWidth={2.5} dot={false} name="Pontos" />
+            <XAxis dataKey="ano" tickFormatter={a => `${a}`} label={{ value: "Anos", position: "insideBottomRight", offset: -4 }} />
+            <YAxis tickFormatter={v => `${v}`} />
+            <Tooltip formatter={(val, name) => [`${val}`, name === 'idade' ? 'Idade' : name === 'contrib' ? 'Tempo de contribuição' : 'Pontos']} labelFormatter={l => `Ano: ${l}`} />
+            <Legend verticalAlign="top" height={36} formatter={v => v === 'idade' ? 'Idade' : v === 'contrib' ? 'Tempo de contribuição' : 'Pontos'} />
+            <Line type="monotone" dataKey="idade" stroke="#2563eb" strokeWidth={2.5} dot={true} name="Idade" />
+            <Line type="monotone" dataKey="contrib" stroke="#a3a3a3" strokeWidth={2.5} dot={true} name="Tempo de contribuição" />
+            <Line type="monotone" dataKey="pontos" stroke="#10b981" strokeWidth={2.5} dot={true} name="Pontos" />
           </LineChart>
         </ResponsiveContainer>
-        <div className="mt-2 text-xs text-neutral-500">Veja como sua idade, tempo de contribuição e pontos evoluem ao longo dos anos.</div>
+        <div className="mt-2 text-xs text-neutral-500">Gráfico ilustrativo: acompanhe sua evolução de idade, tempo de contribuição e pontos ao longo dos anos.</div>
       </div>
 
       <div className="text-xs text-neutral-400 text-center mt-6">
