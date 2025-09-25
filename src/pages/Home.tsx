@@ -68,7 +68,7 @@ export default function Home() {
                 {/* Selo BETA removido e fundo amarelo retirado */}
             </div>
             <div className="text-sm text-neutral-500 mb-2">{calc.description}</div>
-            <Link to={calc.path} className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
+            <Link to={calc.path} className="inline-block mt-auto rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition">Acessar</Link>
           </div>
         ))}
       </div>
@@ -81,14 +81,14 @@ export default function Home() {
             <span className="text-lg font-semibold text-neutral-800">Comparador de Cartões de Crédito</span>
           </div>
           <div className="text-sm text-neutral-500 mb-2">Compare taxas, benefícios e custos dos principais cartões do mercado.</div>
-          <Link to="/comparador-cartoes" className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
+          <Link to="/comparador-cartoes" className="inline-block mt-auto rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition">Acessar</Link>
         </div>
         <div className="rounded-2xl bg-white shadow p-6 flex flex-col gap-2 border border-neutral-100">
           <div className="flex items-center gap-2">
             <span className="text-lg font-semibold text-neutral-800">Comparador de Renda Fixa</span>
           </div>
           <div className="text-sm text-neutral-500 mb-2">Compare CDB, Tesouro, LCIs, LCAs e outros investimentos de renda fixa.</div>
-          <Link to="/comparador-renda-fixa" className="inline-block mt-auto rounded-full bg-black/90 px-4 py-2 text-white text-sm font-medium shadow-sm hover:bg-black transition">Acessar</Link>
+          <Link to="/comparador-renda-fixa" className="inline-block mt-auto rounded-full bg-black/90 px-5 py-2 text-white font-medium shadow-sm hover:bg-black transition">Acessar</Link>
         </div>
       </div>
 
