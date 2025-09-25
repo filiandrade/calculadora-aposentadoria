@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { InputAffix } from "../components/InputAffix"
 
 export default function AluguelVsFinanciamento() {
   const [valorImovel, setValorImovel] = useState(400000)
@@ -24,27 +25,33 @@ export default function AluguelVsFinanciamento() {
       <h1 className="text-2xl font-light mb-4 text-neutral-900">Aluguel vs Financiamento <span className='ml-2 px-2 py-0.5 rounded-full bg-yellow-200 text-xs text-yellow-700 font-bold align-middle'>BETA</span></h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
-          <div>
-            <label className="block text-xs mb-1">Valor do imóvel</label>
-            <input type="number" className="input input-bordered w-full" min={10000} step={1000} value={valorImovel} onChange={e => setValorImovel(Number(e.target.value))} />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Valor do imóvel</label>
+              <InputAffix type="number" prefix="R$" min={10000} step={1000} value={valorImovel} onChange={e => setValorImovel(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Entrada</label>
+              <InputAffix type="number" prefix="R$" min={0} step={1000} value={entrada} onChange={e => setEntrada(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Taxa de juros anual</label>
+              <InputAffix type="number" suffix="%" min={0} step={0.01} value={taxaJuros} onChange={e => setTaxaJuros(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Prazo</label>
+              <InputAffix type="number" suffix="anos" min={1} max={40} value={prazo} onChange={e => setPrazo(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium mb-1">Aluguel mensal</label>
+              <InputAffix type="number" prefix="R$" min={100} step={10} value={aluguel} onChange={e => setAluguel(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs mb-1">Entrada</label>
-            <input type="number" className="input input-bordered w-full" min={0} step={1000} value={entrada} onChange={e => setEntrada(Number(e.target.value))} />
+          <div className="flex justify-end gap-2 mt-4">
+            <button type="button" className="btn btn-outline">Limpar</button>
+            <button type="button" className="btn btn-outline">Imprimir</button>
+            <button type="submit" className="btn btn-primary">Calcular</button>
           </div>
-          <div>
-            <label className="block text-xs mb-1">Taxa de juros anual (%)</label>
-            <input type="number" className="input input-bordered w-full" min={0} step={0.01} value={taxaJuros} onChange={e => setTaxaJuros(Number(e.target.value))} />
-          </div>
-          <div>
-            <label className="block text-xs mb-1">Prazo (anos)</label>
-            <input type="number" className="input input-bordered w-full" min={1} max={40} value={prazo} onChange={e => setPrazo(Number(e.target.value))} />
-          </div>
-          <div>
-            <label className="block text-xs mb-1">Aluguel mensal</label>
-            <input type="number" className="input input-bordered w-full" min={100} step={10} value={aluguel} onChange={e => setAluguel(Number(e.target.value))} />
-          </div>
-          <button type="submit" className="btn btn-primary mt-2">Calcular</button>
         </form>
         {resultado && (
           <div className="mt-6 bg-neutral-50 rounded-xl p-4 border text-sm">
