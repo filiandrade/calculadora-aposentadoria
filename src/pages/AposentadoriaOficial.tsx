@@ -72,7 +72,7 @@ export default function AposentadoriaOficial() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
       <div className="mb-8 print:hidden flex items-center gap-3">
-        <span className="w-7 h-7 bg-black rounded-full text-white flex items-center justify-center font-bold text-xl">Σ</span>
+        <span className="w-6 h-6 bg-black rounded-full text-white flex items-center justify-center font-bold text-lg">Σ</span>
         <h1 className="text-2xl font-light text-neutral-900">Aposentadoria Oficial (INSS)</h1>
       </div>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">

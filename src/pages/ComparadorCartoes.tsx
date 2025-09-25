@@ -47,7 +47,9 @@ export default function ComparadorCartoes() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-[15px]">
       <h1 className="text-2xl font-light mb-4 text-neutral-900 flex items-center gap-2">
-  <span className="w-6 h-6 bg-black rounded-full text-white flex items-center justify-center font-bold text-lg">Σ</span>
+        <span className="w-6 h-6 bg-blue-600 rounded-full text-white flex items-center justify-center">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="16" height="10" rx="2" fill="currentColor"/><rect x="2" y="8" width="16" height="2" fill="#fff"/></svg>
+        </span>
         Comparador de Cartões de Crédito
       </h1>
       <div className="rounded-2xl bg-white shadow p-6 border border-neutral-100 mb-6">
