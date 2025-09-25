@@ -276,10 +276,12 @@ export default function App() {
     setRetornoNominalAA(clamp(retornoNominalAA + deltaPP, -50, 100))
 
   return (
-  <div className="mx-auto max-w-3xl px-4 py-10 text-[15px]">
+  <div className="mx-auto max-w-4xl px-4 py-10 text-[14px]">
       <div className="mb-8 print:hidden">
         <div className="flex items-center gap-3">
-          <span className="w-6 h-6 bg-black rounded-full text-white flex items-center justify-center font-bold text-lg">Σ</span>
+          <span className="w-6 h-6 bg-yellow-400 rounded-full text-white flex items-center justify-center">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="10" r="7" fill="currentColor"/><path d="M9 5v5l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
+          </span>
           <h1 className="text-2xl font-light text-neutral-900">Cálculo de Liberdade Financeira</h1>
         </div>
       </div>

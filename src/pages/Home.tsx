@@ -94,8 +94,6 @@ export default function Home() {
 
       <div className="mt-10 text-xs text-neutral-400 text-center flex flex-col gap-2">
         <span>Simule, compare e planeje seu futuro financeiro. Nenhum dado é coletado.</span>
-        <span className="block mt-4">© Minhas Calculadoras — v1.0 beta</span>
-        <span className="block">Política de Privacidade · Termos de Uso · Contato</span>
       </div>
     </div>
   )
