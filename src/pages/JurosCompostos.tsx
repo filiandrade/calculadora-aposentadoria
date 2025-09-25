@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { InputAffix } from "../components/InputAffix"
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 
 export default function JurosCompostos() {
@@ -46,20 +47,20 @@ export default function JurosCompostos() {
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs mb-1">Valor inicial (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={valorInicial} onChange={e => setValorInicial(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Valor inicial</label>
+              <InputAffix type="number" prefix="R$" min={0} value={valorInicial} onChange={e => setValorInicial(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Aporte mensal (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={aporteMensal} onChange={e => setAporteMensal(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Aporte mensal</label>
+              <InputAffix type="number" prefix="R$" min={0} value={aporteMensal} onChange={e => setAporteMensal(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Taxa de juros anual (%)</label>
-              <input type="number" className="input input-bordered w-full" min={0} step={0.01} value={taxa} onChange={e => setTaxa(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Taxa de juros anual</label>
+              <InputAffix type="number" suffix="%" min={0} step={0.01} value={taxa} onChange={e => setTaxa(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Prazo (anos)</label>
-              <input type="number" className="input input-bordered w-full" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Prazo</label>
+              <InputAffix type="number" suffix="anos" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">

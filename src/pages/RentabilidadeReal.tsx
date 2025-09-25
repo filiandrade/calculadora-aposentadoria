@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { InputAffix } from "../components/InputAffix"
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 
 export default function RentabilidadeReal() {
@@ -41,16 +42,16 @@ export default function RentabilidadeReal() {
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs mb-1">Rendimento bruto (%)</label>
-              <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={rendimento} onChange={e => setRendimento(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Rendimento bruto</label>
+              <InputAffix type="number" suffix="%" min={-100} step={0.01} value={rendimento} onChange={e => setRendimento(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Inflação (%)</label>
-              <input type="number" className="input input-bordered w-full" min={-100} step={0.01} value={inflacao} onChange={e => setInflacao(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Inflação</label>
+              <InputAffix type="number" suffix="%" min={-100} step={0.01} value={inflacao} onChange={e => setInflacao(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Prazo (anos)</label>
-              <input type="number" className="input input-bordered w-full" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Prazo</label>
+              <InputAffix type="number" suffix="anos" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">

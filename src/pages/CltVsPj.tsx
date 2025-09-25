@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { InputAffix } from "../components/InputAffix"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 
 export default function CltVsPj() {
@@ -40,20 +41,20 @@ export default function CltVsPj() {
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs mb-1">Salário CLT (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={salarioClt} onChange={e => setSalarioClt(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Salário CLT</label>
+              <InputAffix type="number" prefix="R$" min={0} value={salarioClt} onChange={e => setSalarioClt(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Benefícios CLT (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={beneficios} onChange={e => setBeneficios(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Benefícios CLT</label>
+              <InputAffix type="number" prefix="R$" min={0} value={beneficios} onChange={e => setBeneficios(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Salário PJ (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={salarioPj} onChange={e => setSalarioPj(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Salário PJ</label>
+              <InputAffix type="number" prefix="R$" min={0} value={salarioPj} onChange={e => setSalarioPj(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Custos PJ (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={custoPj} onChange={e => setCustoPj(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Custos PJ</label>
+              <InputAffix type="number" prefix="R$" min={0} value={custoPj} onChange={e => setCustoPj(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">

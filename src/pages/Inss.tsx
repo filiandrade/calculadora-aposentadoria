@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { InputAffix } from "../components/InputAffix"
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 
 export default function Inss() {
@@ -48,20 +49,20 @@ export default function Inss() {
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); calcular() }}>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs mb-1">Renda mensal (R$)</label>
-              <input type="number" className="input input-bordered w-full" min={0} value={renda} onChange={e => setRenda(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Renda mensal</label>
+              <InputAffix type="number" prefix="R$" min={0} value={renda} onChange={e => setRenda(Number(e.target.value))} className="w-full rounded-md border bg-white pl-12 pr-3 py-2" />
             </div>
             <div>
-              <label className="block text-xs mb-1">Categoria</label>
-              <select className="input input-bordered w-full" value={categoria} onChange={e => setCategoria(e.target.value)}>
+              <label className="block text-sm font-medium mb-1">Categoria</label>
+              <select className="w-full rounded-md border bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]" value={categoria} onChange={e => setCategoria(e.target.value)}>
                 <option value="CLT">CLT</option>
                 <option value="MEI">MEI</option>
                 <option value="Autônomo">Autônomo</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs mb-1">Prazo (anos)</label>
-              <input type="number" className="input input-bordered w-full" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} />
+              <label className="block text-sm font-medium mb-1">Prazo</label>
+              <InputAffix type="number" suffix="anos" min={1} max={50} value={anos} onChange={e => setAnos(Number(e.target.value))} className="w-full rounded-md border bg-white pr-10 pl-3 py-2" />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
